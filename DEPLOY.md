@@ -4,8 +4,8 @@
 
 | Где     | Что                          |
 |---------|------------------------------|
-| Домен   | tranzitus.ru                 |
-| Сервер  | `/opt/tranzitus`             |
+| Домен   | tranzitum.ru                 |
+| Сервер  | `/opt/tranzitum`             |
 | Ветка   | `main`                       |
 | Деплой  | `./scripts/deploy.sh` руками |
 
@@ -15,7 +15,7 @@
 ┌────────────── internet ──────────────┐
               │ 80/443
 ┌─────────────▼──────────────┐
-│ caddy  (TLS, reverse proxy)│  tranzitus.ru
+│ caddy  (TLS, reverse proxy)│  tranzitum.ru
 └─┬──────────────────────────┘
   │ compose net
   │
@@ -59,12 +59,12 @@ docker run --rm hello-world   # проверка
 A-запись у регистратора:
 
 ```
-tranzitus.ru.   A   <server-ip>
+tranzitum.ru.   A   <server-ip>
 ```
 
 Проверь:
 ```bash
-dig +short tranzitus.ru   # должно вернуть <server-ip>
+dig +short tranzitum.ru   # должно вернуть <server-ip>
 ```
 
 Без этого Let's Encrypt не выдаст сертификат.
@@ -73,18 +73,18 @@ dig +short tranzitus.ru   # должно вернуть <server-ip>
 
 ```bash
 # Клонируем репу (ветка main)
-git clone -b main <repo-url> /opt/tranzitus
-cd /opt/tranzitus
+git clone -b main <repo-url> /opt/tranzitum
+cd /opt/tranzitum
 
 # Готовим .env
 cp .env.prod.example .env
 nano .env
-# - DOMAIN:            tranzitus.ru
+# - DOMAIN:            tranzitum.ru
 # - ACME_EMAIL:        твой email для Let's Encrypt
 # - POSTGRES_PASSWORD: openssl rand -base64 24
 # - JWT_SECRET:        openssl rand -hex 32
 # - UNISENDER_API_KEY: боевой ключ
-# - MAIL_FROM:         noreply@tranzitus.ru
+# - MAIL_FROM:         noreply@tranzitum.ru
 # - ADMIN_EMAIL:       свой email
 # - ADMIN_PASSWORD:    придумай минимум 8 символов (можно удалить после seed)
 
@@ -109,7 +109,7 @@ docker compose ps
 docker compose logs -f app
 ```
 
-Caddy увидит домен, за 15–30 сек выпустит сертификат. Открой `https://tranzitus.ru`.
+Caddy увидит домен, за 15–30 сек выпустит сертификат. Открой `https://tranzitum.ru`.
 
 После успешного seed можно убрать `ADMIN_PASSWORD` из `.env` — хеш уже в БД.
 
@@ -118,7 +118,7 @@ Caddy увидит домен, за 15–30 сек выпустит сертиф
 Новый код идёт в ветку `main`. На сервере:
 
 ```bash
-cd /opt/tranzitus
+cd /opt/tranzitum
 ./scripts/deploy.sh
 # → git fetch, checkout main, pull, build, migrate, restart
 ```
@@ -127,7 +127,7 @@ cd /opt/tranzitus
 
 Консоль:
 ```bash
-cd /opt/tranzitus
+cd /opt/tranzitum
 docker compose exec postgres psql -U tranzito tranzito
 ```
 
@@ -143,18 +143,18 @@ docker compose exec postgres pg_dump -U tranzito -Fc tranzito > backups/manual_$
 
 Скачать дамп на локалку:
 ```bash
-scp root@<server-ip>:/opt/tranzitus/backups/tranzito_*.dump ./
+scp root@<server-ip>:/opt/tranzitum/backups/tranzito_*.dump ./
 ```
 
 Авто-бэкап: сервис `backup` делает `pg_dump -Fc` раз в сутки в `./backups/tranzito_YYYYMMDD_HHMMSS.dump`, хранит `BACKUP_KEEP_DAYS` дней.
 
 ## 6. Загруженные файлы
 
-Volume `tranzitus_uploads` монтируется в `/app/uploads`. Бэкап:
+Volume `tranzitum_uploads` монтируется в `/app/uploads`. Бэкап:
 ```bash
 docker run --rm \
-  -v tranzitus_uploads:/src \
-  -v /opt/tranzitus/backups:/dst \
+  -v tranzitum_uploads:/src \
+  -v /opt/tranzitum/backups:/dst \
   alpine tar czf /dst/uploads_$(date +%F).tar.gz -C /src .
 ```
 
@@ -173,7 +173,7 @@ git push origin main       # → приедет на сервер через dep
 ## 8. Мониторинг / диагностика
 
 ```bash
-cd /opt/tranzitus
+cd /opt/tranzitum
 
 docker compose ps
 docker compose logs -f app
@@ -194,7 +194,7 @@ docker compose exec postgres psql -U tranzito -c \
 **OOM при сборке.** Nuxt build прожорлив. На 1 ГБ VPS может падать. Лечение — swap или собрать образ локально и пушить через registry.
 
 **Сертификат Let's Encrypt не выпускается.**
-1. A-запись указывает на IP сервера (`dig +short tranzitus.ru`).
+1. A-запись указывает на IP сервера (`dig +short tranzitum.ru`).
 2. 80 и 443 открыты извне (`nmap -p 80,443 <server-ip>` с другой машины).
 3. На 80/443 слушает Caddy, а не apache/nginx (`ss -tlnp | grep -E ':80|:443'`).
 4. `ACME_EMAIL` в `.env` валидный.

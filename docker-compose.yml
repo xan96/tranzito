@@ -1,5 +1,5 @@
 # ============================================================
-#  Tranzito app stack (prod, /opt/tranzitus на сервере)
+#  Tranzito app stack (prod, /opt/tranzitum на сервере)
 # ============================================================
 #  Один стек: Caddy + app + postgres + ежедневный бэкап.
 #  Деплой — руками с ветки main (см. DEPLOY.md).
@@ -36,7 +36,7 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
       MAIL_PROVIDER: ${MAIL_PROVIDER:-console}
       UNISENDER_API_KEY: ${UNISENDER_API_KEY:-}
-      MAIL_FROM: ${MAIL_FROM:-noreply@tranzitus.ru}
+      MAIL_FROM: ${MAIL_FROM:-noreply@tranzitum.ru}
       UPLOAD_DIR: /app/uploads
       MAX_FILE_SIZE: ${MAX_FILE_SIZE:-10485760}
       NUXT_PUBLIC_APP_URL: ${NUXT_PUBLIC_APP_URL:?NUXT_PUBLIC_APP_URL is required}
