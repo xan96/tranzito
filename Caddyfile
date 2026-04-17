@@ -1,0 +1,43 @@
+{
+	email {$ACME_EMAIL}
+	# Для отладки TLS без рейт-лимитов Let's Encrypt можно включить staging:
+	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+{$DOMAIN} {
+	encode gzip zstd
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+		-Server
+	}
+
+	@nuxtAssets path /_nuxt/* /assets/*
+	header @nuxtAssets Cache-Control "public, max-age=31536000, immutable"
+
+	@uploads path /api/documents/*
+	header @uploads Cache-Control "private, max-age=3600"
+
+	request_body {
+		max_size 15MB
+	}
+
+	reverse_proxy app:3000 {
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up Host {host}
+	}
+
+	log {
+		output file /data/access.log {
+			roll_size 10MB
+			roll_keep 5
+		}
+		format json
+	}
+}

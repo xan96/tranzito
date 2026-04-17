@@ -1,0 +1,98 @@
+# ============================================================
+#  Tranzito app stack (prod, /opt/tranzitus на сервере)
+# ============================================================
+#  Один стек: Caddy + app + postgres + ежедневный бэкап.
+#  Деплой — руками с ветки main (см. DEPLOY.md).
+# ============================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tranzito}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-tranzito}
+    # Порт наружу НЕ пробрасываем — только внутри compose-сети
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tranzito}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-tranzito}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tranzito}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      MAIL_PROVIDER: ${MAIL_PROVIDER:-console}
+      UNISENDER_API_KEY: ${UNISENDER_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-noreply@tranzitus.ru}
+      UPLOAD_DIR: /app/uploads
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-10485760}
+      NUXT_PUBLIC_APP_URL: ${NUXT_PUBLIC_APP_URL:?NUXT_PUBLIC_APP_URL is required}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL is required}
+      # Используется только скриптом seed при первом запуске.
+      # Для штатной работы app переменная не требуется и может быть пустой.
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    volumes:
+      - uploads:/app/uploads
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN is required}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  # Ежедневный pg_dump в ./backups/
+  backup:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-tranzito}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-tranzito}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    volumes:
+      - ./backups:/backups
+    entrypoint: >
+      sh -c '
+        while true; do
+          TS=$$(date +%Y%m%d_%H%M%S);
+          echo "[backup] dump start $$TS";
+          pg_dump -Fc -f /backups/tranzito_$$TS.dump || echo "[backup] FAILED";
+          find /backups -name "tranzito_*.dump" -mtime +$$BACKUP_KEEP_DAYS -delete;
+          echo "[backup] done, sleeping 24h";
+          sleep 86400;
+        done
+      '
+
+volumes:
+  postgres_data:
+  uploads:
+  caddy_data:
+  caddy_config:
