@@ -128,25 +128,25 @@ cd /opt/tranzitum
 Консоль:
 ```bash
 cd /opt/tranzitum
-docker compose exec postgres psql -U tranzito tranzito
+docker compose exec postgres psql -U tranzitum tranzitum
 ```
 
 Ручной дамп:
 ```bash
-docker compose exec postgres pg_dump -U tranzito -Fc tranzito > backups/manual_$(date +%F).dump
+docker compose exec postgres pg_dump -U tranzitum -Fc tranzitum > backups/manual_$(date +%F).dump
 ```
 
 Восстановление:
 ```bash
-./scripts/backup-restore.sh backups/tranzito_20260417_030000.dump
+./scripts/backup-restore.sh backups/tranzitum_20260417_030000.dump
 ```
 
 Скачать дамп на локалку:
 ```bash
-scp root@<server-ip>:/opt/tranzitum/backups/tranzito_*.dump ./
+scp root@<server-ip>:/opt/tranzitum/backups/tranzitum_*.dump ./
 ```
 
-Авто-бэкап: сервис `backup` делает `pg_dump -Fc` раз в сутки в `./backups/tranzito_YYYYMMDD_HHMMSS.dump`, хранит `BACKUP_KEEP_DAYS` дней.
+Авто-бэкап: сервис `backup` делает `pg_dump -Fc` раз в сутки в `./backups/tranzitum_YYYYMMDD_HHMMSS.dump`, хранит `BACKUP_KEEP_DAYS` дней.
 
 ## 6. Загруженные файлы
 
@@ -187,8 +187,8 @@ docker stats --no-stream
 
 **`POSTGRES_PASSWORD` менял в `.env`, авторизация всё равно не работает.** `POSTGRES_PASSWORD` применяется только при **первой** инициализации volume. Меняй пароль через SQL:
 ```bash
-docker compose exec postgres psql -U tranzito -c \
-  "ALTER USER tranzito WITH PASSWORD 'новый';"
+docker compose exec postgres psql -U tranzitum -c \
+  "ALTER USER tranzitum WITH PASSWORD 'новый';"
 ```
 
 **OOM при сборке.** Nuxt build прожорлив. На 1 ГБ VPS может падать. Лечение — swap или собрать образ локально и пушить через registry.

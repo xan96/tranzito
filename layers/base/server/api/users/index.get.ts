@@ -1,5 +1,5 @@
 import { desc } from 'drizzle-orm'
-import { users } from '@tranzito/db'
+import { users } from '@tranzitum/db'
 import { requireRole } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {

@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { documents, applications } from '@tranzito/db'
+import { documents, applications } from '@tranzitum/db'
 import { requireAuth } from '../../utils/auth'
 import { createReadStream } from 'fs'
 import { stat } from 'fs/promises'

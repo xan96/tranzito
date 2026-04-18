@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm'
-import { applications, documents, statusHistory, users } from '@tranzito/db'
+import { applications, documents, statusHistory, users } from '@tranzitum/db'
 import { requireRole } from '../../utils/auth'
 import { useMailService, renderMailTemplate } from '../../utils/mail'
 import { mkdir, writeFile } from 'fs/promises'

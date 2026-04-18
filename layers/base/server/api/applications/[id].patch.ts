@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { applications, statusHistory, users } from '@tranzito/db'
+import { applications, statusHistory, users } from '@tranzitum/db'
 import { requireRole } from '../../utils/auth'
 import { useMailService, renderMailTemplate } from '../../utils/mail'
 import {

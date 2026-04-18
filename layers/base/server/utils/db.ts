@@ -1,4 +1,4 @@
-import { createDb, type Database } from '@tranzito/db'
+import { createDb, type Database } from '@tranzitum/db'
 
 let db: Database | null = null
 

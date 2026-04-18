@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Восстановление из бэкапа.
-# Usage: ./scripts/backup-restore.sh backups/tranzito_YYYYMMDD_HHMMSS.dump
+# Usage: ./scripts/backup-restore.sh backups/tranzitum_YYYYMMDD_HHMMSS.dump
 
 if [ $# -ne 1 ]; then
   echo "Usage: $0 <path-to-dump>"

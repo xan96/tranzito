@@ -17,7 +17,7 @@ const { data } = useApi<{ data: ApplicationItem[] }>('/api/applications', {
   default: () => ({ data: [] }),
 })
 
-const lastSeenKey = computed(() => `tranzito:notifications-seen:${user.value?.id ?? 'anon'}`)
+const lastSeenKey = computed(() => `tranzitum:notifications-seen:${user.value?.id ?? 'anon'}`)
 const lastSeen = ref<number>(0)
 
 onMounted(() => {

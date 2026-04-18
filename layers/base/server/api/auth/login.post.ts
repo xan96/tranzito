@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
-import { users } from '@tranzito/db'
+import { users } from '@tranzitum/db'
 import { verifyPassword, createToken } from '../../utils/auth'
 
 const loginSchema = z.object({

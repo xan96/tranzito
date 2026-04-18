@@ -35,7 +35,7 @@ docker compose up -d      # Start PostgreSQL
 ## Project Structure
 
 ```
-tranzito2/
+tranzitum/
 ├── app/                      # Main Nuxt app (landing, login)
 │   ├── assets/css/main.css   # Global T-Bank styles
 │   └── nuxt.config.ts        # Extends all layers
@@ -122,11 +122,11 @@ GET  /api/documents/:id       # Download file
 ## Environment Variables
 
 ```env
-DATABASE_URL=postgresql://tranzito:tranzito@localhost:5432/tranzito
+DATABASE_URL=postgresql://tranzitum:tranzitum@localhost:5432/tranzitum
 JWT_SECRET=your-secret
 MAIL_PROVIDER=console
 UPLOAD_DIR=./uploads
-ADMIN_EMAIL=admin@tranzito.ru        # создаётся первым seed
+ADMIN_EMAIL=admin@tranzitum.ru        # создаётся первым seed
 ADMIN_PASSWORD=change-me-min-8       # только для первого seed
 ```
 

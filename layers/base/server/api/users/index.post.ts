@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { users } from '@tranzito/db'
+import { users } from '@tranzitum/db'
 import { requireRole, hashPassword } from '../../utils/auth'
 
 const createUserSchema = z.object({

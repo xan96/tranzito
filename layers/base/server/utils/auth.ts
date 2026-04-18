@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { compare, hash } from 'bcrypt'
 import type { H3Event } from 'h3'
-import { users } from '@tranzito/db'
+import { users } from '@tranzitum/db'
 import { eq } from 'drizzle-orm'
 
 export interface JwtPayload {

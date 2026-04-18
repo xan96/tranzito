@@ -1,5 +1,5 @@
 import { and, desc, eq } from 'drizzle-orm'
-import { applications, users, documents, statusHistory, investorInterests } from '@tranzito/db'
+import { applications, users, documents, statusHistory, investorInterests } from '@tranzitum/db'
 import { requireAuth } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {

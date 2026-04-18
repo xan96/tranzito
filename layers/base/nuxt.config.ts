@@ -57,16 +57,18 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    jwtSecret: process.env.JWT_SECRET,
-    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
-    databaseUrl: process.env.DATABASE_URL,
-    mailProvider: process.env.MAIL_PROVIDER || 'console',
-    unisenderApiKey: process.env.UNISENDER_API_KEY,
-    mailFrom: process.env.MAIL_FROM || 'noreply@tranzito.ru',
-    uploadDir: process.env.UPLOAD_DIR || './uploads',
-    maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '10485760'),
+    // Defaults are used at build time. At runtime Nuxt overrides these
+    // with NUXT_* prefixed env vars (e.g. NUXT_DATABASE_URL).
+    jwtSecret: '',
+    jwtExpiresIn: '7d',
+    databaseUrl: '',
+    mailProvider: 'console',
+    unisenderApiKey: '',
+    mailFrom: 'noreply@tranzitum.ru',
+    uploadDir: './uploads',
+    maxFileSize: 10485760,
     public: {
-      appUrl: process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      appUrl: 'http://localhost:3000',
     },
   },
 

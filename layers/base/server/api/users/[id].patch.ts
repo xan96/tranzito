@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { users } from '@tranzito/db'
+import { users } from '@tranzitum/db'
 import { requireRole } from '../../utils/auth'
 
 const updateUserSchema = z.object({

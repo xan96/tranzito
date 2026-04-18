@@ -6,7 +6,7 @@ definePageMeta({
 
 const router = useRouter()
 
-const STORAGE_KEY = 'tranzito-application-draft'
+const STORAGE_KEY = 'tranzitum-application-draft'
 
 // Restore state from sessionStorage
 const savedState = import.meta.client ? sessionStorage.getItem(STORAGE_KEY) : null
