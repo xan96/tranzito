@@ -46,7 +46,7 @@ const { data: application, pending, refresh } = useApi<{
     }>
     interests: Array<{
       id: string
-      status: 'new' | 'contacted' | 'closed'
+      status: InterestStatus
       createdAt: string
       investor: {
         id: string
@@ -135,6 +135,27 @@ function ltvTone(ltv: number) {
 function statusLabel(s: string | null) {
   if (!s) return ''
   return APPLICATION_STATUS_LABELS[s as ApplicationStatus] || s
+}
+
+const interestUpdatingId = ref<string | null>(null)
+const interestError = ref('')
+
+async function updateInterestStatus(interestId: string, status: InterestStatus) {
+  interestUpdatingId.value = interestId
+  interestError.value = ''
+  try {
+    await $fetch(`/api/applications/${applicationId}/interests/${interestId}`, {
+      method: 'PATCH',
+      body: { status },
+    })
+    await refresh()
+  } catch (error: unknown) {
+    const err = error as { data?: { message?: string }; statusMessage?: string }
+    interestError.value = err?.data?.message || err?.statusMessage || 'Не удалось обновить статус интереса'
+    console.error('Failed to update interest status:', error)
+  } finally {
+    interestUpdatingId.value = null
+  }
 }
 
 async function updateApplication() {
@@ -347,13 +368,22 @@ async function updateApplication() {
               {{ newInterests.length }}
               {{ newInterests.length === 1 ? 'новый отклик' : 'новых откликов' }}
             </p>
+            <div
+              v-if="interestError"
+              class="mb-3 flex items-start gap-2 bg-red-50 text-red-700 rounded-xl px-3 py-2"
+            >
+              <UIcon name="i-heroicons-exclamation-circle" class="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <p class="text-xs leading-relaxed">
+                {{ interestError }}
+              </p>
+            </div>
             <ul class="divide-y divide-gray-100">
               <li
                 v-for="interest in data.interests"
                 :key="interest.id"
                 class="py-3 first:pt-0 last:pb-0"
               >
-                <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start justify-between gap-3 mb-2">
                   <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2 mb-1">
                       <p class="text-sm font-semibold text-gray-900 truncate">
@@ -363,19 +393,19 @@ async function updateApplication() {
                         v-if="interest.status === 'new'"
                         class="px-2 py-0.5 rounded-full bg-[#ffdd2d]/20 text-[#fab619] text-[11px] font-semibold flex-shrink-0"
                       >
-                        новый
+                        {{ INTEREST_STATUS_LABELS.new }}
                       </span>
                       <span
                         v-else-if="interest.status === 'contacted'"
                         class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[11px] font-semibold flex-shrink-0"
                       >
-                        связались
+                        {{ INTEREST_STATUS_LABELS.contacted }}
                       </span>
                       <span
                         v-else
                         class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[11px] font-semibold flex-shrink-0"
                       >
-                        закрыт
+                        {{ INTEREST_STATUS_LABELS.closed }}
                       </span>
                     </div>
                     <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
@@ -400,6 +430,27 @@ async function updateApplication() {
                   <span class="text-xs text-gray-400 flex-shrink-0">
                     {{ formatDateTime(interest.createdAt) }}
                   </span>
+                </div>
+                <div v-if="interest.status !== 'closed'" class="flex items-center gap-2">
+                  <TButton
+                    v-if="interest.status === 'new'"
+                    size="sm"
+                    variant="secondary"
+                    :loading="interestUpdatingId === interest.id"
+                    :disabled="interestUpdatingId !== null"
+                    @click="updateInterestStatus(interest.id, 'contacted')"
+                  >
+                    Связались
+                  </TButton>
+                  <TButton
+                    size="sm"
+                    variant="ghost"
+                    :loading="interestUpdatingId === interest.id"
+                    :disabled="interestUpdatingId !== null"
+                    @click="updateInterestStatus(interest.id, 'closed')"
+                  >
+                    Закрыть
+                  </TButton>
                 </div>
               </li>
             </ul>
@@ -448,7 +499,7 @@ async function updateApplication() {
             icon="i-heroicons-cog-6-tooth"
             icon-bg="bg-[#ffdd2d]/20"
             icon-color="text-[#fab619]"
-            class="lg:sticky lg:top-20"
+            class="lg:sticky lg:top-20 lg:z-10"
           >
             <div class="space-y-4">
               <TSelect

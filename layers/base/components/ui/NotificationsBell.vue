@@ -14,8 +14,8 @@ interface PendingUserItem {
   id: string
   email: string
   fullName: string
-  role: 'broker' | 'investor' | 'admin'
-  approvalStatus: 'pending' | 'approved' | 'rejected'
+  role: UserRole
+  approvalStatus: UserApprovalStatus
   createdAt: string
 }
 
@@ -66,17 +66,9 @@ interface Notification {
 }
 
 const role = computed(() => user.value?.role)
-const linkBase = computed(() => {
-  if (role.value === 'admin') return '/admin/applications'
-  if (role.value === 'broker') return '/broker/applications'
-  return '/investor/applications'
-})
-
-const roleLabel: Record<'broker' | 'investor' | 'admin', string> = {
-  broker: 'брокер',
-  investor: 'инвестор',
-  admin: 'админ',
-}
+const linkBase = computed(() =>
+  role.value ? ROLE_APPLICATION_PATHS[role.value] : ROLE_APPLICATION_PATHS.investor,
+)
 
 const notifications = computed<Notification[]>(() => {
   const items = data.value?.data ?? []
@@ -90,7 +82,7 @@ const notifications = computed<Notification[]>(() => {
         icon: 'i-heroicons-user-plus',
         iconColor: 'text-[#428bf9] bg-[#428bf9]/10',
         title: 'Заявка на регистрацию',
-        message: `${u.fullName} · ${roleLabel[u.role] ?? u.role}`,
+        message: `${u.fullName} · ${USER_ROLE_SHORT_LABELS[u.role] ?? u.role}`,
         timestamp: new Date(u.createdAt).getTime(),
         href: '/admin/users?status=pending',
       })
@@ -167,14 +159,7 @@ function formatMoney(amount: number) {
 }
 
 function statusLabel(status: string) {
-  const map: Record<string, string> = {
-    approved: 'Одобрена',
-    in_progress: 'В работе',
-    completed: 'Завершена',
-    rejected: 'Отклонена',
-    pending: 'На проверке',
-  }
-  return map[status] || status
+  return APPLICATION_STATUS_LABELS[status as ApplicationStatus] ?? status
 }
 
 function relativeTime(ts: number) {

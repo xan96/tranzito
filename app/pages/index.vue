@@ -1,20 +1,9 @@
 <script setup lang="ts">
 const { isAuthenticated, user } = useAuth()
 
-const redirectPath = computed(() => {
-  if (!user.value) return '/login'
-
-  switch (user.value.role) {
-    case 'broker':
-      return '/broker'
-    case 'investor':
-      return '/investor'
-    case 'admin':
-      return '/admin'
-    default:
-      return '/login'
-  }
-})
+const redirectPath = computed(() =>
+  user.value ? ROLE_DASHBOARDS[user.value.role] ?? LOGIN_PATH : LOGIN_PATH,
+)
 </script>
 
 <template>

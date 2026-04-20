@@ -4,13 +4,14 @@ import { applications, statusHistory, users } from '@tranzitum/db'
 import { requireRole } from '../../utils/auth'
 import { useMailService, renderMailTemplate } from '../../utils/mail'
 import {
+  APPLICATION_STATUSES,
   APPLICATION_STATUS_LABELS,
   isAllowedStatusTransition,
   type ApplicationStatus,
 } from '../../../utils/constants'
 
 const updateSchema = z.object({
-  status: z.enum(['pending', 'approved', 'in_progress', 'completed', 'rejected']).optional(),
+  status: z.enum(APPLICATION_STATUSES).optional(),
   managerComment: z.string().optional(),
 })
 

@@ -1,4 +1,5 @@
 import type { AuthUser } from '../server/utils/auth'
+import type { UserRole } from '../utils/constants'
 
 interface LoginCredentials {
   email: string
@@ -59,7 +60,7 @@ export function useAuth() {
     }
   }
 
-  function hasRole(roles: Array<'admin' | 'broker' | 'investor'>) {
+  function hasRole(roles: readonly UserRole[]) {
     return state.value.user && roles.includes(state.value.user.role)
   }
 

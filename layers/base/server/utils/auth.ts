@@ -3,18 +3,19 @@ import { compare, hash } from 'bcrypt'
 import type { H3Event } from 'h3'
 import { users } from '@tranzitum/db'
 import { eq } from 'drizzle-orm'
+import type { UserRole } from '../../utils/constants'
 
 export interface JwtPayload {
   userId: string
   email: string
-  role: 'admin' | 'broker' | 'investor'
+  role: UserRole
 }
 
 export interface AuthUser {
   id: string
   email: string
   fullName: string
-  role: 'admin' | 'broker' | 'investor'
+  role: UserRole
   phone: string | null
 }
 
@@ -90,7 +91,7 @@ export function requireAuth(event: H3Event): AuthUser {
   return user
 }
 
-export function requireRole(event: H3Event, roles: Array<'admin' | 'broker' | 'investor'>): AuthUser {
+export function requireRole(event: H3Event, roles: readonly UserRole[]): AuthUser {
   const user = requireAuth(event)
   if (!roles.includes(user.role)) {
     throw createError({

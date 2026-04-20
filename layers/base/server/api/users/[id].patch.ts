@@ -2,11 +2,12 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { users } from '@tranzitum/db'
 import { requireRole } from '../../utils/auth'
+import { USER_ROLES } from '../../../utils/constants'
 
 const updateUserSchema = z.object({
   fullName: z.string().min(1).optional(),
   phone: z.string().optional(),
-  role: z.enum(['admin', 'broker', 'investor']).optional(),
+  role: z.enum(USER_ROLES).optional(),
   isActive: z.boolean().optional(),
 })
 

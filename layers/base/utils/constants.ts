@@ -13,6 +13,29 @@ export const USER_ROLE_OPTIONS = USER_ROLES.map(value => ({
   label: USER_ROLE_LABELS[value],
 }))
 
+/** Короткие подписи ролей (для компактных UI-элементов). */
+export const USER_ROLE_SHORT_LABELS: Record<UserRole, string> = {
+  admin: 'админ',
+  broker: 'брокер',
+  investor: 'инвестор',
+}
+
+/** Путь главной страницы кабинета по роли. */
+export const ROLE_DASHBOARDS: Record<UserRole, string> = {
+  admin: '/admin',
+  broker: '/broker',
+  investor: '/investor',
+}
+
+/** Путь к списку заявок по роли. */
+export const ROLE_APPLICATION_PATHS: Record<UserRole, string> = {
+  admin: '/admin/applications',
+  broker: '/broker/applications',
+  investor: '/investor/applications',
+}
+
+export const LOGIN_PATH = '/login'
+
 // Роли, доступные для самостоятельной регистрации (админ — только через ручное создание).
 export const SELF_REGISTRATION_ROLES = ['broker', 'investor'] as const
 export type SelfRegistrationRole = (typeof SELF_REGISTRATION_ROLES)[number]
@@ -66,6 +89,28 @@ export function isAllowedStatusTransition(from: ApplicationStatus, to: Applicati
 // Interest statuses
 export const INTEREST_STATUSES = ['new', 'contacted', 'closed'] as const
 export type InterestStatus = (typeof INTEREST_STATUSES)[number]
+
+export const INTEREST_STATUS_LABELS: Record<InterestStatus, string> = {
+  new: 'Новый',
+  contacted: 'Связались',
+  closed: 'Закрыт',
+}
+
+/**
+ * Разрешённые переходы статусов интереса инвестора.
+ * new → contacted → closed. Из new можно сразу в closed (если не интересно).
+ * closed — терминальное состояние.
+ */
+export const INTEREST_STATUS_TRANSITIONS: Record<InterestStatus, readonly InterestStatus[]> = {
+  new: ['contacted', 'closed'],
+  contacted: ['closed'],
+  closed: [],
+}
+
+export function isAllowedInterestTransition(from: InterestStatus, to: InterestStatus): boolean {
+  if (from === to) return true
+  return INTEREST_STATUS_TRANSITIONS[from].includes(to)
+}
 
 // Loan term
 /** Допустимые сроки займа в днях (источник истины для формы брокера). */

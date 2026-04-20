@@ -3,12 +3,13 @@ import { eq } from 'drizzle-orm'
 import { users } from '@tranzitum/db'
 import { hashPassword } from '../../utils/auth'
 import { useMailService, renderMailTemplate } from '../../utils/mail'
+import { SELF_REGISTRATION_ROLES, type SelfRegistrationRole } from '../../../utils/constants'
 
 const registerSchema = z.object({
   email: z.string().email().max(255),
   fullName: z.string().min(1).max(255),
   phone: z.string().max(20).optional(),
-  role: z.enum(['broker', 'investor']),
+  role: z.enum(SELF_REGISTRATION_ROLES),
   password: z.string().min(6).max(128),
 })
 
@@ -74,7 +75,7 @@ export default defineEventHandler(async (event) => {
       const rendered = renderMailTemplate('user-registration-request', {
         email: created.email,
         fullName: created.fullName,
-        role: created.role as 'broker' | 'investor',
+        role: created.role as SelfRegistrationRole,
         adminUrl,
       })
       await useMailService().send({

@@ -1,5 +1,6 @@
 import type { MailService, MailTemplate, MailTemplateData } from '~/server/types/mail'
 import { SmtpMailService } from './smtp'
+import { USER_ROLE_LABELS } from '../../../utils/constants'
 
 let mailService: MailService | null = null
 
@@ -67,7 +68,7 @@ export function renderMailTemplate<T extends MailTemplate>(
 
     case 'user-registration-request': {
       const d = data as MailTemplateData['user-registration-request']
-      const roleLabel = d.role === 'broker' ? 'Брокер' : 'Инвестор'
+      const roleLabel = USER_ROLE_LABELS[d.role]
       return {
         subject: `Новая заявка на регистрацию — ${d.fullName}`,
         html: `<p>Поступила новая заявка на регистрацию:</p>

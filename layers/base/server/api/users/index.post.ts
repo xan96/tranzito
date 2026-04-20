@@ -2,12 +2,13 @@ import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { users } from '@tranzitum/db'
 import { requireRole, hashPassword } from '../../utils/auth'
+import { USER_ROLES } from '../../../utils/constants'
 
 const createUserSchema = z.object({
   email: z.string().email(),
   fullName: z.string().min(1),
   phone: z.string().optional(),
-  role: z.enum(['admin', 'broker', 'investor']),
+  role: z.enum(USER_ROLES),
   password: z.string().min(6),
 })
 
