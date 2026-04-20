@@ -181,7 +181,7 @@ async function updateApplication() {
 </script>
 
 <template>
-  <div class="px-4 md:px-6 py-6 space-y-4 md:space-y-6">
+  <div class="px-3 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
     <!-- Back -->
     <div>
       <NuxtLink
@@ -203,16 +203,16 @@ async function updateApplication() {
 
     <template v-else-if="data">
       <!-- Hero -->
-      <section class="bg-white rounded-3xl p-5 md:p-8 border border-[#0010241f]">
+      <section class="bg-white rounded-3xl p-4 md:p-8 border border-[#0010241f]">
         <div class="flex flex-wrap items-start justify-between gap-3 mb-5 md:mb-6">
-          <div class="min-w-0">
+          <div class="min-w-0 flex-1">
             <p class="text-sm text-gray-500 mb-1">
               Заявка № {{ data.id.slice(0, 8).toUpperCase() }}
             </p>
             <h1 class="text-xl md:text-3xl font-bold text-gray-900 break-words">
               {{ data.borrowerName }}
             </h1>
-            <p class="text-xs md:text-sm text-gray-500 mt-1">
+            <p class="text-xs md:text-sm text-gray-500 mt-1 break-words">
               Создана {{ formatDate(data.createdAt) }} · брокер {{ data.broker?.fullName }}
             </p>
           </div>
@@ -222,19 +222,19 @@ async function updateApplication() {
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
           <div class="min-w-0">
             <p class="text-xs text-gray-500 mb-1">Сумма</p>
-            <p class="text-lg md:text-3xl font-bold text-gray-900 leading-tight">
+            <p class="text-base md:text-3xl font-bold text-gray-900 leading-tight break-words">
               {{ formatMoney(Number(data.requestedAmount)) }} <span class="text-sm md:text-lg">₽</span>
             </p>
           </div>
           <div class="min-w-0">
             <p class="text-xs text-gray-500 mb-1">Срок</p>
-            <p class="text-lg md:text-3xl font-bold text-gray-900 leading-tight">
+            <p class="text-base md:text-3xl font-bold text-gray-900 leading-tight">
               {{ data.loanTermDays }} <span class="text-sm md:text-base font-medium text-gray-500">дней</span>
             </p>
           </div>
           <div class="col-span-2 md:col-span-1 min-w-0">
             <p class="text-xs text-gray-500 mb-1">LTV</p>
-            <p class="text-lg md:text-3xl font-bold" :class="ltvTone(ltv).color">
+            <p class="text-base md:text-3xl font-bold" :class="ltvTone(ltv).color">
               {{ ltv }}%
             </p>
             <p class="text-xs mt-0.5" :class="ltvTone(ltv).color">
@@ -282,20 +282,20 @@ async function updateApplication() {
           >
             <dl class="divide-y divide-gray-100">
               <div class="flex items-start justify-between gap-4 py-3">
-                <dt class="text-sm text-gray-500">Адрес</dt>
-                <dd class="text-sm font-medium text-gray-900 text-right max-w-[60%]">
+                <dt class="text-sm text-gray-500 flex-shrink-0">Адрес</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-words min-w-0">
                   {{ data.propertyAddress }}
                 </dd>
               </div>
-              <div v-if="data.cadastralNumber" class="flex items-center justify-between py-3">
-                <dt class="text-sm text-gray-500">Кадастровый номер</dt>
-                <dd class="text-sm font-medium text-gray-900">
+              <div v-if="data.cadastralNumber" class="flex items-start justify-between gap-4 py-3">
+                <dt class="text-sm text-gray-500 flex-shrink-0">Кадастровый номер</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-all min-w-0">
                   {{ data.cadastralNumber }}
                 </dd>
               </div>
               <div v-if="data.bankBInfo" class="flex items-start justify-between gap-4 py-3">
-                <dt class="text-sm text-gray-500">Банк Б</dt>
-                <dd class="text-sm font-medium text-gray-900 text-right max-w-[60%]">
+                <dt class="text-sm text-gray-500 flex-shrink-0">Банк Б</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-words min-w-0">
                   {{ data.bankBInfo }}
                 </dd>
               </div>
@@ -304,21 +304,21 @@ async function updateApplication() {
 
           <TDetailSection title="Заёмщик" icon="i-heroicons-user">
             <dl class="divide-y divide-gray-100">
-              <div class="flex items-center justify-between py-3">
-                <dt class="text-sm text-gray-500">ФИО</dt>
-                <dd class="text-sm font-medium text-gray-900">
+              <div class="flex items-start justify-between gap-4 py-3">
+                <dt class="text-sm text-gray-500 flex-shrink-0">ФИО</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-words min-w-0">
                   {{ data.borrowerName }}
                 </dd>
               </div>
-              <div class="flex items-center justify-between py-3">
-                <dt class="text-sm text-gray-500">Телефон</dt>
-                <dd class="text-sm font-medium text-gray-900">
+              <div class="flex items-start justify-between gap-4 py-3">
+                <dt class="text-sm text-gray-500 flex-shrink-0">Телефон</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-words min-w-0">
                   {{ data.borrowerPhone }}
                 </dd>
               </div>
-              <div v-if="data.borrowerEmail" class="flex items-center justify-between py-3">
-                <dt class="text-sm text-gray-500">Email</dt>
-                <dd class="text-sm font-medium text-gray-900 truncate max-w-[60%]">
+              <div v-if="data.borrowerEmail" class="flex items-start justify-between gap-4 py-3">
+                <dt class="text-sm text-gray-500 flex-shrink-0">Email</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-all min-w-0">
                   {{ data.borrowerEmail }}
                 </dd>
               </div>
@@ -555,21 +555,21 @@ async function updateApplication() {
 
           <TDetailSection title="Брокер" icon="i-heroicons-identification">
             <dl class="divide-y divide-gray-100">
-              <div class="flex items-center justify-between py-3">
-                <dt class="text-sm text-gray-500">ФИО</dt>
-                <dd class="text-sm font-medium text-gray-900 truncate max-w-[60%]">
+              <div class="flex items-start justify-between gap-4 py-3">
+                <dt class="text-sm text-gray-500 flex-shrink-0">ФИО</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-words min-w-0">
                   {{ data.broker?.fullName }}
                 </dd>
               </div>
-              <div class="flex items-center justify-between py-3">
-                <dt class="text-sm text-gray-500">Email</dt>
-                <dd class="text-sm font-medium text-gray-900 truncate max-w-[60%]">
+              <div class="flex items-start justify-between gap-4 py-3">
+                <dt class="text-sm text-gray-500 flex-shrink-0">Email</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-all min-w-0">
                   {{ data.broker?.email }}
                 </dd>
               </div>
-              <div v-if="data.broker?.phone" class="flex items-center justify-between py-3">
-                <dt class="text-sm text-gray-500">Телефон</dt>
-                <dd class="text-sm font-medium text-gray-900">
+              <div v-if="data.broker?.phone" class="flex items-start justify-between gap-4 py-3">
+                <dt class="text-sm text-gray-500 flex-shrink-0">Телефон</dt>
+                <dd class="text-sm font-medium text-gray-900 text-right break-words min-w-0">
                   {{ data.broker?.phone }}
                 </dd>
               </div>
