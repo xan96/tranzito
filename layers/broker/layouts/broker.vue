@@ -20,7 +20,7 @@ const initials = computed(() => {
         <div class="flex items-center gap-8">
           <NuxtLink to="/broker" class="flex items-center gap-2">
             <TLogo :size="32" />
-            <span class="font-semibold text-gray-900 hidden sm:block">Транзито</span>
+            <span class="font-semibold text-gray-900 hidden sm:block">Tranzitum</span>
             <span class="text-xs text-gray-500 font-medium px-2 py-0.5 bg-gray-100 rounded-md hidden sm:block">
               Брокер
             </span>

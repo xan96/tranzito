@@ -122,6 +122,7 @@ function statusCount(value: string) {
     <TFilterPills
       v-model="statusFilter"
       :options="statusOptions.map(o => ({ ...o, count: statusCount(o.value) }))"
+      layout="wrap"
     />
 
     <!-- List -->

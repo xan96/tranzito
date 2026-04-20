@@ -3,7 +3,7 @@ import { getAuthUser } from '../utils/auth'
 export default defineEventHandler(async (event) => {
   // Skip auth for public routes
   const path = getRequestURL(event).pathname
-  const publicPaths = ['/api/auth/login', '/api/health']
+  const publicPaths = ['/api/auth/login', '/api/auth/register', '/api/health']
 
   if (publicPaths.some((p) => path.startsWith(p))) {
     return

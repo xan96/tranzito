@@ -1,5 +1,5 @@
 {
-  "id": "2d16a153-7c7b-4018-b7c5-2bc6cf85f31f",
+  "id": "13b42094-5d5e-4650-b722-b0f68d924b71",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -407,6 +407,32 @@
           "notNull": true,
           "default": true
         },
+        "approval_status": {
+          "name": "approval_status",
+          "type": "user_approval_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "rejection_reason": {
+          "name": "rejection_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approved_at": {
+          "name": "approved_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "approved_by_user_id": {
+          "name": "approved_by_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -455,6 +481,15 @@
         "new",
         "contacted",
         "closed"
+      ]
+    },
+    "public.user_approval_status": {
+      "name": "user_approval_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "approved",
+        "rejected"
       ]
     },
     "public.user_role": {

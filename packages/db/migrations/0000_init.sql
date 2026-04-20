@@ -11,6 +11,12 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ CREATE TYPE "public"."user_approval_status" AS ENUM('pending', 'approved', 'rejected');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  CREATE TYPE "public"."user_role" AS ENUM('admin', 'broker', 'investor');
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -72,6 +78,10 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"role" "user_role" DEFAULT 'broker' NOT NULL,
 	"phone" varchar(20),
 	"is_active" boolean DEFAULT true NOT NULL,
+	"approval_status" "user_approval_status" DEFAULT 'pending' NOT NULL,
+	"rejection_reason" text,
+	"approved_at" timestamp,
+	"approved_by_user_id" uuid,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")

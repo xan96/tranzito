@@ -19,7 +19,7 @@ const initials = computed(() => {
         <div class="flex items-center gap-8">
           <NuxtLink to="/investor" class="flex items-center gap-2">
             <TLogo :size="32" />
-            <span class="font-semibold text-gray-900 hidden sm:block">Транзито</span>
+            <span class="font-semibold text-gray-900 hidden sm:block">Tranzitum</span>
           </NuxtLink>
 
           <nav class="hidden md:flex items-center gap-1">

@@ -35,7 +35,25 @@ async function handleSubmit() {
     const loggedInUser = await login(form)
     redirectToRole(loggedInUser.role)
   } catch (e: unknown) {
-    error.value = 'Неверный email или пароль'
+    const err = e as { data?: { data?: { code?: string; reason?: string | null } }; statusCode?: number }
+    const code = err.data?.data?.code
+    const reason = err.data?.data?.reason
+
+    switch (code) {
+      case 'PENDING_APPROVAL':
+        error.value = 'Ваша заявка ещё на рассмотрении. Ожидайте письма с решением.'
+        break
+      case 'REJECTED':
+        error.value = reason
+          ? `Ваша заявка отклонена. Причина: ${reason}`
+          : 'Ваша заявка отклонена.'
+        break
+      case 'BLOCKED':
+        error.value = 'Аккаунт заблокирован. Свяжитесь с администратором.'
+        break
+      default:
+        error.value = 'Неверный email или пароль'
+    }
   } finally {
     isLoading.value = false
   }
@@ -49,7 +67,7 @@ async function handleSubmit() {
       <div class="text-center mb-8">
         <NuxtLink to="/" class="inline-flex items-center gap-3">
           <TLogo :size="44" />
-          <span class="text-3xl font-bold text-gray-900">Транзито</span>
+          <span class="text-3xl font-bold text-gray-900">Tranzitum</span>
         </NuxtLink>
         <p class="text-gray-500 mt-2">
           Войдите в свой аккаунт
@@ -93,7 +111,10 @@ async function handleSubmit() {
       </div>
 
       <p class="text-center text-sm text-gray-500 mt-6">
-        Нет аккаунта? Обратитесь к администратору
+        Нет аккаунта?
+        <NuxtLink to="/register" class="text-gray-900 font-medium hover:underline">
+          Зарегистрироваться
+        </NuxtLink>
       </p>
     </div>
   </div>

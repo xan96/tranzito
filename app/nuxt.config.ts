@@ -21,6 +21,8 @@ export default defineNuxtConfig({
     // Public pages - prerender (static)
     '/': { prerender: true },
     '/login': { prerender: true },
+    '/register': { prerender: true },
+    '/register/success': { prerender: true },
 
     // Private cabinets - SPA mode (no SSR)
     '/broker/**': { ssr: false },
@@ -32,7 +34,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Транзито',
+      title: 'Tranzitum',
       meta: [
         { name: 'description', content: 'Платформа транзитного финансирования' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },

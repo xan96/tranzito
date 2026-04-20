@@ -131,6 +131,7 @@ const greetingName = computed(() => {
     <TFilterPills
       v-model="statusFilter"
       :options="statusTabs.map(t => ({ ...t, count: statusCount(t.value) }))"
+      layout="wrap"
     />
 
     <!-- List -->

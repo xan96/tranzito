@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { eq } from 'drizzle-orm'
 import { users } from '@tranzitum/db'
 import { requireRole, hashPassword } from '../../utils/auth'
 
@@ -11,7 +12,7 @@ const createUserSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  requireRole(event, ['admin'])
+  const admin = requireRole(event, ['admin'])
 
   const body = await readBody(event)
   const result = createUserSchema.safeParse(body)
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
   const existing = await db
     .select({ id: users.id })
     .from(users)
-    .where((await import('drizzle-orm')).eq(users.email, email.toLowerCase()))
+    .where(eq(users.email, email.toLowerCase()))
     .limit(1)
 
   if (existing.length > 0) {
@@ -43,6 +44,7 @@ export default defineEventHandler(async (event) => {
 
   const passwordHash = await hashPassword(password)
 
+  // Пользователи, которых создаёт админ вручную, сразу одобрены.
   const [user] = await db
     .insert(users)
     .values({
@@ -51,6 +53,9 @@ export default defineEventHandler(async (event) => {
       phone: phone || null,
       role,
       passwordHash,
+      approvalStatus: 'approved',
+      approvedAt: new Date(),
+      approvedByUserId: admin.id,
     })
     .returning({
       id: users.id,
@@ -59,6 +64,7 @@ export default defineEventHandler(async (event) => {
       role: users.role,
       phone: users.phone,
       isActive: users.isActive,
+      approvalStatus: users.approvalStatus,
       createdAt: users.createdAt,
     })
 

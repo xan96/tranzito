@@ -37,6 +37,8 @@ async function seed() {
     passwordHash,
     fullName: 'Administrator',
     role: 'admin',
+    approvalStatus: 'approved',
+    approvedAt: new Date(),
   }).onConflictDoNothing().returning({ id: users.id })
 
   if (inserted) {

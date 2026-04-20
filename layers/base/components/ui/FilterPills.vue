@@ -39,11 +39,11 @@ defineEmits<{
       ]"
       @click="$emit('update:modelValue', opt.value)"
     >
-      <UIcon v-if="opt.icon" :name="opt.icon" class="w-4 h-4" />
+      <UIcon v-if="opt.icon" :name="opt.icon" class="w-4 h-4 hidden sm:block" />
       {{ opt.label }}
       <span
         v-if="opt.count !== undefined"
-        class="text-xs px-1.5 py-0.5 rounded-md"
+        class="text-[11px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-md"
         :class="modelValue === opt.value ? 'bg-white/20' : 'bg-gray-100'"
       >
         {{ opt.count }}
@@ -54,8 +54,8 @@ defineEmits<{
 
 <style scoped>
 .t-pill {
-  @apply inline-flex items-center gap-2;
-  @apply px-3 md:px-4 py-1.5 md:py-2;
+  @apply inline-flex items-center gap-1.5 sm:gap-2;
+  @apply px-2.5 sm:px-3 md:px-4 py-1.5 md:py-2;
   @apply rounded-full text-xs md:text-sm whitespace-nowrap;
   @apply transition-all border;
 }

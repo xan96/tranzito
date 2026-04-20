@@ -26,13 +26,44 @@ const emit = defineEmits<{
 const inputId = useId()
 const inputRef = ref<HTMLInputElement>()
 const isFocused = ref(false)
+const isAutofilled = ref(false)
 
 const hasValue = computed(() => {
   return props.modelValue !== '' && props.modelValue !== null && props.modelValue !== undefined
 })
 
 const isFloating = computed(() => {
-  return isFocused.value || hasValue.value
+  return isFocused.value || hasValue.value || isAutofilled.value
+})
+
+// Detect browser autofill via CSS animation hack (Chrome/Safari fire
+// onAutoFillStart when :-webkit-autofill matches).
+function handleAnimationStart(e: AnimationEvent) {
+  if (e.animationName === 'onAutoFillStart') {
+    isAutofilled.value = true
+  } else if (e.animationName === 'onAutoFillCancel') {
+    isAutofilled.value = false
+  }
+}
+
+// Autofill may happen before Vue mounts and attaches @animationstart, so
+// re-check via :-webkit-autofill selector on mount + short retries (Chrome
+// sometimes applies autofill after first paint).
+onMounted(() => {
+  const check = () => {
+    const el = inputRef.value
+    if (!el) return
+    try {
+      if (el.matches(':-webkit-autofill')) {
+        isAutofilled.value = true
+      }
+    } catch {
+      // Selector unsupported (Firefox) — no-op.
+    }
+  }
+  check()
+  setTimeout(check, 100)
+  setTimeout(check, 500)
 })
 
 
@@ -111,6 +142,7 @@ defineExpose({
         @input="handleInput"
         @focus="handleFocus"
         @blur="handleBlur"
+        @animationstart="handleAnimationStart"
       />
       <label
         v-if="label"
@@ -274,8 +306,33 @@ defineExpose({
 /* Autofill styles */
 .t-input-field:-webkit-autofill,
 .t-input-field:-webkit-autofill:hover,
-.t-input-field:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 30px rgb(241, 238, 232) inset !important;
+.t-input-field:-webkit-autofill:focus,
+.t-input-field:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgb(241, 238, 232) inset !important;
   -webkit-text-fill-color: #111827 !important;
+  caret-color: #111827;
+  transition: background-color 9999s ease-in-out 0s;
+  animation-name: onAutoFillStart;
+  animation-duration: 0.001s;
+}
+
+.t-input-field:not(:-webkit-autofill) {
+  animation-name: onAutoFillCancel;
+  animation-duration: 0.001s;
+}
+
+.t-input-field:focus:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px rgb(235, 232, 226) inset !important;
+}
+
+/* Keyframes must exist for animationstart to fire; values don't matter. */
+@keyframes onAutoFillStart {
+  from { /* noop */ }
+  to { /* noop */ }
+}
+
+@keyframes onAutoFillCancel {
+  from { /* noop */ }
+  to { /* noop */ }
 }
 </style>

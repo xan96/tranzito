@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling:** Tailwind CSS
 - **Database:** PostgreSQL + Drizzle ORM (postgres.js driver)
 - **Auth:** JWT
-- **Email:** Abstract mail service (Console/Unisender GO)
+- **Email:** Abstract mail service (SMTP via nodemailer)
 - **Package Manager:** pnpm (monorepo)
 
 ## Commands
@@ -77,9 +77,9 @@ definePageMeta({
 
 Statuses: `pending` → `approved` → `in_progress` → `completed` | `rejected`
 
-### Mail Abstraction
+### Mail
 ```typescript
-// Switch provider via MAIL_PROVIDER env: 'console' | 'unisender'
+// SMTP via nodemailer (SMTP_HOST/PORT/USER/PASSWORD + MAIL_FROM env)
 const mailService = useMailService()
 await mailService.send({ to, subject, html })
 ```
@@ -124,7 +124,11 @@ GET  /api/documents/:id       # Download file
 ```env
 DATABASE_URL=postgresql://tranzitum:tranzitum@localhost:5432/tranzitum
 JWT_SECRET=your-secret
-MAIL_PROVIDER=console
+SMTP_HOST=smtp.yandex.ru
+SMTP_PORT=465
+SMTP_USER=noreply@tranzitum.ru
+SMTP_PASSWORD=...
+MAIL_FROM=Tranzitum <noreply@tranzitum.ru>
 UPLOAD_DIR=./uploads
 ADMIN_EMAIL=admin@tranzitum.ru        # создаётся первым seed
 ADMIN_PASSWORD=change-me-min-8       # только для первого seed

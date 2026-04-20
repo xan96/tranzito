@@ -57,18 +57,22 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    // Defaults are used at build time. At runtime Nuxt overrides these
-    // with NUXT_* prefixed env vars (e.g. NUXT_DATABASE_URL).
-    jwtSecret: '',
-    jwtExpiresIn: '7d',
-    databaseUrl: '',
-    mailProvider: 'console',
-    unisenderApiKey: '',
-    mailFrom: 'noreply@tranzitum.ru',
-    uploadDir: './uploads',
-    maxFileSize: 10485760,
+    // Defaults read raw env vars (DATABASE_URL etc.) so local dev works
+    // without NUXT_* prefix. In production NUXT_* env vars override these
+    // at runtime as usual (e.g. NUXT_DATABASE_URL).
+    jwtSecret: process.env.JWT_SECRET || '',
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    databaseUrl: process.env.DATABASE_URL || '',
+    smtpHost: process.env.SMTP_HOST || '',
+    smtpPort: Number(process.env.SMTP_PORT) || 465,
+    smtpUser: process.env.SMTP_USER || '',
+    smtpPassword: process.env.SMTP_PASSWORD || '',
+    mailFrom: process.env.MAIL_FROM || '',
+    adminEmail: process.env.ADMIN_EMAIL || '',
+    uploadDir: process.env.UPLOAD_DIR || './uploads',
+    maxFileSize: Number(process.env.MAX_FILE_SIZE) || 10485760,
     public: {
-      appUrl: 'http://localhost:3000',
+      appUrl: process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000',
     },
   },
 

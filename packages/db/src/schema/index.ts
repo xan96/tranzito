@@ -13,6 +13,12 @@ import { relations } from 'drizzle-orm'
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['admin', 'broker', 'investor'])
 
+export const userApprovalStatusEnum = pgEnum('user_approval_status', [
+  'pending',
+  'approved',
+  'rejected',
+])
+
 export const applicationStatusEnum = pgEnum('application_status', [
   'pending',
   'approved',
@@ -36,6 +42,12 @@ export const users = pgTable('users', {
   role: userRoleEnum('role').notNull().default('broker'),
   phone: varchar('phone', { length: 20 }),
   isActive: boolean('is_active').notNull().default(true),
+  approvalStatus: userApprovalStatusEnum('approval_status').notNull().default('pending'),
+  rejectionReason: text('rejection_reason'),
+  approvedAt: timestamp('approved_at'),
+  // NOTE: FK to users.id is declared at DB level in migration 0001_add_user_approval.sql.
+  // Omitted here to avoid drizzle-kit self-reference snapshot churn.
+  approvedByUserId: uuid('approved_by_user_id'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })

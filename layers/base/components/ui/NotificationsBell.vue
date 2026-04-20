@@ -10,12 +10,41 @@ interface ApplicationItem {
   broker?: { fullName?: string }
 }
 
+interface PendingUserItem {
+  id: string
+  email: string
+  fullName: string
+  role: 'broker' | 'investor' | 'admin'
+  approvalStatus: 'pending' | 'approved' | 'rejected'
+  createdAt: string
+}
+
 const { user } = useAuth()
 
 const { data } = useApi<{ data: ApplicationItem[] }>('/api/applications', {
   lazy: true,
   default: () => ({ data: [] }),
 })
+
+// Admin-only: pending registration requests. Non-admins would get 403, so
+// we gate the fetch via `immediate` and trigger it only for admins.
+const { data: pendingUsers, refresh: refreshPendingUsers } = useApi<{ data: PendingUserItem[] }>(
+  '/api/users?status=pending',
+  {
+    lazy: true,
+    immediate: false,
+    default: () => ({ data: [] }),
+    key: 'api:/api/users?status=pending',
+  },
+)
+
+watch(
+  () => user.value?.role,
+  (role) => {
+    if (role === 'admin') refreshPendingUsers()
+  },
+  { immediate: true },
+)
 
 const lastSeenKey = computed(() => `tranzitum:notifications-seen:${user.value?.id ?? 'anon'}`)
 const lastSeen = ref<number>(0)
@@ -43,9 +72,30 @@ const linkBase = computed(() => {
   return '/investor/applications'
 })
 
+const roleLabel: Record<'broker' | 'investor' | 'admin', string> = {
+  broker: 'брокер',
+  investor: 'инвестор',
+  admin: 'админ',
+}
+
 const notifications = computed<Notification[]>(() => {
   const items = data.value?.data ?? []
   const result: Notification[] = []
+
+  if (role.value === 'admin') {
+    for (const u of pendingUsers.value?.data ?? []) {
+      result.push({
+        id: `user-${u.id}`,
+        applicationId: u.id,
+        icon: 'i-heroicons-user-plus',
+        iconColor: 'text-[#428bf9] bg-[#428bf9]/10',
+        title: 'Заявка на регистрацию',
+        message: `${u.fullName} · ${roleLabel[u.role] ?? u.role}`,
+        timestamp: new Date(u.createdAt).getTime(),
+        href: '/admin/users?status=pending',
+      })
+    }
+  }
 
   for (const app of items) {
     const ts = new Date(app.createdAt).getTime()

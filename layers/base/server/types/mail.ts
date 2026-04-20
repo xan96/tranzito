@@ -14,6 +14,9 @@ export type MailTemplate =
   | 'application-status-changed'
   | 'investor-interest'
   | 'application-published'
+  | 'user-registration-request'
+  | 'user-approved'
+  | 'user-rejected'
 
 export interface MailTemplateData {
   'application-created': {
@@ -35,5 +38,19 @@ export interface MailTemplateData {
     applicationId: string
     amount: number
     termDays: number
+  }
+  'user-registration-request': {
+    email: string
+    fullName: string
+    role: 'broker' | 'investor'
+    adminUrl: string
+  }
+  'user-approved': {
+    fullName: string
+    loginUrl: string
+  }
+  'user-rejected': {
+    fullName: string
+    reason?: string
   }
 }

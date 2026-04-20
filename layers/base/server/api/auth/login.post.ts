@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
     .where(eq(users.email, email.toLowerCase()))
     .limit(1)
 
-  if (!user || !user.isActive) {
+  if (!user) {
     throw createError({
       statusCode: 401,
       message: 'Invalid email or password',
@@ -41,6 +41,31 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 401,
       message: 'Invalid email or password',
+    })
+  }
+
+  // Пароль верный — проверяем статус заявки до выдачи JWT.
+  if (user.approvalStatus === 'pending') {
+    throw createError({
+      statusCode: 403,
+      message: 'Ваша заявка на рассмотрении',
+      data: { code: 'PENDING_APPROVAL' },
+    })
+  }
+
+  if (user.approvalStatus === 'rejected') {
+    throw createError({
+      statusCode: 403,
+      message: 'Ваша заявка отклонена',
+      data: { code: 'REJECTED', reason: user.rejectionReason },
+    })
+  }
+
+  if (!user.isActive) {
+    throw createError({
+      statusCode: 403,
+      message: 'Аккаунт заблокирован',
+      data: { code: 'BLOCKED' },
     })
   }
 

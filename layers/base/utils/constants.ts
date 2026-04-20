@@ -13,6 +13,25 @@ export const USER_ROLE_OPTIONS = USER_ROLES.map(value => ({
   label: USER_ROLE_LABELS[value],
 }))
 
+// Роли, доступные для самостоятельной регистрации (админ — только через ручное создание).
+export const SELF_REGISTRATION_ROLES = ['broker', 'investor'] as const
+export type SelfRegistrationRole = (typeof SELF_REGISTRATION_ROLES)[number]
+
+export const SELF_REGISTRATION_ROLE_OPTIONS = SELF_REGISTRATION_ROLES.map(value => ({
+  value,
+  label: USER_ROLE_LABELS[value],
+}))
+
+// User approval status
+export const USER_APPROVAL_STATUSES = ['pending', 'approved', 'rejected'] as const
+export type UserApprovalStatus = (typeof USER_APPROVAL_STATUSES)[number]
+
+export const USER_APPROVAL_STATUS_LABELS: Record<UserApprovalStatus, string> = {
+  pending: 'На рассмотрении',
+  approved: 'Одобрено',
+  rejected: 'Отклонено',
+}
+
 // Application statuses
 export const APPLICATION_STATUSES = ['pending', 'approved', 'in_progress', 'completed', 'rejected'] as const
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number]

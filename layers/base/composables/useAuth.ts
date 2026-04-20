@@ -44,7 +44,12 @@ export function useAuth() {
   async function fetchUser() {
     state.value.isLoading = true
     try {
-      const response = await $fetch<{ user: AuthUser }>('/api/auth/me')
+      // Forward the browser cookie during SSR so the internal /api/auth/me
+      // call sees the JWT. Without this the server would always treat the
+      // visitor as anonymous and the initial HTML would flip to "logged in"
+      // only after client hydration.
+      const headers = import.meta.server ? useRequestHeaders(['cookie']) : undefined
+      const response = await $fetch<{ user: AuthUser }>('/api/auth/me', { headers })
       state.value.user = response.user
     } catch {
       state.value.user = null

@@ -4,20 +4,26 @@ definePageMeta({
   middleware: ['auth', 'role-admin'],
 })
 
-const { data: users, pending, refresh } = useApi<{
-  data: Array<{
-    id: string
-    email: string
-    fullName: string
-    role: string
-    phone: string | null
-    isActive: boolean
-    createdAt: string
-  }>
-}>('/api/users')
+interface AdminUser {
+  id: string
+  email: string
+  fullName: string
+  role: string
+  phone: string | null
+  isActive: boolean
+  approvalStatus: 'pending' | 'approved' | 'rejected'
+  rejectionReason: string | null
+  approvedAt: string | null
+  createdAt: string
+}
+
+const { data: users, pending, refresh } = useApi<{ data: AdminUser[] }>('/api/users')
+
+const toast = useToast()
 
 const showCreateModal = ref(false)
 const isCreating = ref(false)
+const createError = ref('')
 const createForm = reactive({
   email: '',
   fullName: '',
@@ -27,6 +33,12 @@ const createForm = reactive({
 })
 
 const roleFilter = ref<string>('')
+
+const showRejectModal = ref(false)
+const rejectTarget = ref<AdminUser | null>(null)
+const rejectReason = ref('')
+const isRejecting = ref(false)
+const actingId = ref<string | null>(null)
 
 function getRoleLabel(role: string) {
   return USER_ROLE_LABELS[role as UserRole] || role
@@ -45,12 +57,22 @@ function roleColor(role: string) {
   }
 }
 
+function approvalColor(status: AdminUser['approvalStatus']) {
+  switch (status) {
+    case 'pending': return 'bg-amber-50 text-amber-700'
+    case 'rejected': return 'bg-red-50 text-red-700'
+    case 'approved':
+    default: return 'bg-green-50 text-green-700'
+  }
+}
+
 function initials(name: string) {
   return name.split(' ').map(p => p[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || '?'
 }
 
 async function createUser() {
   isCreating.value = true
+  createError.value = ''
   try {
     await $fetch('/api/users', { method: 'POST', body: createForm })
     showCreateModal.value = false
@@ -60,8 +82,9 @@ async function createUser() {
     createForm.role = 'broker'
     createForm.password = ''
     await refresh()
-  } catch (error) {
-    console.error('Failed to create user:', error)
+    toast.add({ title: 'Пользователь создан', color: 'green' })
+  } catch (err: unknown) {
+    createError.value = (err as { data?: { message?: string } })?.data?.message || 'Не удалось создать пользователя'
   } finally {
     isCreating.value = false
   }
@@ -79,15 +102,59 @@ async function toggleUserStatus(userId: string, isActive: boolean) {
   }
 }
 
-const stats = computed(() => {
-  const items = users.value?.data ?? []
-  return {
-    total: items.length,
-    admins: items.filter(u => u.role === 'admin').length,
-    brokers: items.filter(u => u.role === 'broker').length,
-    investors: items.filter(u => u.role === 'investor').length,
+async function approve(user: AdminUser) {
+  actingId.value = user.id
+  try {
+    await $fetch(`/api/users/${user.id}/approve`, { method: 'POST' })
+    await refresh()
+    toast.add({ title: `Заявка ${user.fullName} одобрена`, color: 'green' })
+  } catch (err) {
+    console.error('approve failed', err)
+    toast.add({ title: 'Не удалось одобрить заявку', color: 'red' })
+  } finally {
+    actingId.value = null
   }
-})
+}
+
+function openRejectModal(user: AdminUser) {
+  rejectTarget.value = user
+  rejectReason.value = ''
+  showRejectModal.value = true
+}
+
+async function confirmReject() {
+  if (!rejectTarget.value) return
+  isRejecting.value = true
+  try {
+    await $fetch(`/api/users/${rejectTarget.value.id}/reject`, {
+      method: 'POST',
+      body: { reason: rejectReason.value || undefined },
+    })
+    const name = rejectTarget.value.fullName
+    showRejectModal.value = false
+    rejectTarget.value = null
+    rejectReason.value = ''
+    await refresh()
+    toast.add({ title: `Заявка ${name} отклонена`, color: 'green' })
+  } catch (err) {
+    console.error('reject failed', err)
+    toast.add({ title: 'Не удалось отклонить заявку', color: 'red' })
+  } finally {
+    isRejecting.value = false
+  }
+}
+
+const items = computed<AdminUser[]>(() => users.value?.data ?? [])
+
+const pendingUsers = computed(() => items.value.filter(u => u.approvalStatus === 'pending'))
+
+const stats = computed(() => ({
+  total: items.value.length,
+  admins: items.value.filter(u => u.role === 'admin').length,
+  brokers: items.value.filter(u => u.role === 'broker').length,
+  investors: items.value.filter(u => u.role === 'investor').length,
+  pending: pendingUsers.value.length,
+}))
 
 const roleTabs = [
   { value: '', label: 'Все' },
@@ -97,9 +164,10 @@ const roleTabs = [
 ]
 
 const filtered = computed(() => {
-  const items = users.value?.data ?? []
-  if (!roleFilter.value) return items
-  return items.filter(u => u.role === roleFilter.value)
+  // В общем списке не показываем pending — они в отдельной секции сверху.
+  const base = items.value.filter(u => u.approvalStatus !== 'pending')
+  if (!roleFilter.value) return base
+  return base.filter(u => u.role === roleFilter.value)
 })
 </script>
 
@@ -117,7 +185,7 @@ const filtered = computed(() => {
             Пользователи
           </h1>
           <p class="text-white/70 max-w-xl">
-            Управляйте доступом, ролями и активацией аккаунтов.
+            Управляйте доступом, ролями и заявками на регистрацию.
           </p>
         </div>
         <TButton
@@ -131,11 +199,17 @@ const filtered = computed(() => {
     </section>
 
     <!-- Stats -->
-    <section class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+    <section class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
       <TStatCard
         icon="i-heroicons-users"
         label="Всего"
         :value="stats.total"
+      />
+      <TStatCard
+        icon="i-heroicons-clock"
+        label="На рассмотрении"
+        :value="stats.pending"
+        tone="amber"
       />
       <TStatCard
         icon="i-heroicons-shield-check"
@@ -155,6 +229,63 @@ const filtered = computed(() => {
         :value="stats.investors"
         tone="green"
       />
+    </section>
+
+    <!-- Pending registration requests -->
+    <section v-if="pendingUsers.length" class="bg-white rounded-2xl border border-amber-200 overflow-hidden">
+      <header class="px-6 py-4 border-b border-amber-100 bg-amber-50 flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-amber-900">
+            Заявки на регистрацию
+          </h2>
+          <p class="text-sm text-amber-700">
+            Новые пользователи ждут одобрения — они не могут войти до вашей реакции.
+          </p>
+        </div>
+        <span class="inline-flex items-center justify-center min-w-[2rem] h-8 px-3 rounded-full bg-amber-200 text-amber-900 text-sm font-bold">
+          {{ pendingUsers.length }}
+        </span>
+      </header>
+
+      <ul class="divide-y divide-amber-100">
+        <li
+          v-for="u in pendingUsers"
+          :key="u.id"
+          class="px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center gap-3 md:gap-4"
+        >
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-200 to-amber-300 flex items-center justify-center text-xs font-semibold text-amber-900">
+              {{ initials(u.fullName) }}
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                {{ u.fullName }}
+              </p>
+              <p class="text-xs text-gray-500 truncate">
+                {{ u.email }} · {{ getRoleLabel(u.role) }}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 md:justify-end">
+            <TButton
+              size="sm"
+              :loading="actingId === u.id"
+              :disabled="actingId === u.id"
+              @click="approve(u)"
+            >
+              Одобрить
+            </TButton>
+            <TButton
+              size="sm"
+              variant="outline"
+              :disabled="actingId === u.id"
+              @click="openRejectModal(u)"
+            >
+              Отклонить
+            </TButton>
+          </div>
+        </li>
+      </ul>
     </section>
 
     <!-- Role tabs -->
@@ -218,13 +349,22 @@ const filtered = computed(() => {
                 {{ formatDate(u.createdAt) }}
               </td>
               <td class="px-6 py-4">
-                <span
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
-                  :class="u.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full" :class="u.isActive ? 'bg-green-500' : 'bg-gray-400'" />
-                  {{ u.isActive ? 'Активен' : 'Заблокирован' }}
-                </span>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span
+                    class="inline-flex px-2 py-0.5 rounded-md text-xs font-semibold"
+                    :class="approvalColor(u.approvalStatus)"
+                    :title="u.approvalStatus === 'rejected' && u.rejectionReason ? u.rejectionReason : undefined"
+                  >
+                    {{ USER_APPROVAL_STATUS_LABELS[u.approvalStatus] }}
+                  </span>
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
+                    :class="u.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full" :class="u.isActive ? 'bg-green-500' : 'bg-gray-400'" />
+                    {{ u.isActive ? 'Активен' : 'Заблокирован' }}
+                  </span>
+                </div>
               </td>
               <td class="px-6 py-4 text-right">
                 <button
@@ -261,7 +401,13 @@ const filtered = computed(() => {
                   {{ getRoleLabel(u.role) }}
                 </span>
               </div>
-              <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+              <div class="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-gray-100">
+                <span
+                  class="inline-flex px-2 py-0.5 rounded-md text-xs font-semibold"
+                  :class="approvalColor(u.approvalStatus)"
+                >
+                  {{ USER_APPROVAL_STATUS_LABELS[u.approvalStatus] }}
+                </span>
                 <span
                   class="inline-flex items-center gap-1.5 text-xs"
                   :class="u.isActive ? 'text-green-700' : 'text-gray-500'"
@@ -270,7 +416,7 @@ const filtered = computed(() => {
                   {{ u.isActive ? 'Активен' : 'Заблокирован' }}
                 </span>
                 <button
-                  class="text-xs font-medium"
+                  class="ml-auto text-xs font-medium"
                   :class="u.isActive ? 'text-red-600' : 'text-green-600'"
                   @click="toggleUserStatus(u.id, u.isActive)"
                 >
@@ -293,6 +439,13 @@ const filtered = computed(() => {
         </template>
 
         <form class="space-y-4" @submit.prevent="createUser">
+          <div
+            v-if="createError"
+            class="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm"
+          >
+            {{ createError }}
+          </div>
+
           <UFormGroup label="ФИО" required>
             <UInput v-model="createForm.fullName" />
           </UFormGroup>
@@ -326,6 +479,38 @@ const filtered = computed(() => {
             </TButton>
             <TButton :loading="isCreating" @click="createUser">
               Создать
+            </TButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
+
+    <!-- Reject modal -->
+    <UModal v-model="showRejectModal">
+      <UCard :ui="{ rounded: 'rounded-2xl' }">
+        <template #header>
+          <h3 class="text-lg font-semibold">
+            Отклонить заявку
+          </h3>
+        </template>
+
+        <div v-if="rejectTarget" class="space-y-4">
+          <p class="text-sm text-gray-600">
+            Заявка <strong>{{ rejectTarget.fullName }}</strong> ({{ rejectTarget.email }}) будет отклонена. Пользователь получит письмо с указанной причиной.
+          </p>
+
+          <UFormGroup label="Причина (необязательно)">
+            <UTextarea v-model="rejectReason" :rows="3" placeholder="Например: недостаточно данных" />
+          </UFormGroup>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end gap-3">
+            <TButton variant="secondary" @click="showRejectModal = false">
+              Отмена
+            </TButton>
+            <TButton :loading="isRejecting" @click="confirmReject">
+              Отклонить
             </TButton>
           </div>
         </template>

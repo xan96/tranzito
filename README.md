@@ -1,10 +1,10 @@
-# Транзито
+# Tranzitum
 
 Платформа транзитного финансирования для сделок с недвижимостью.
 
 ## О проекте
 
-Транзито помогает погасить ипотечный долг и снять обременение для продажи или рефинансирования недвижимости. Платформа связывает брокеров, которые подают заявки от заёмщиков, с инвесторами, предоставляющими краткосрочное финансирование (7-30 дней).
+Tranzitum помогает погасить ипотечный долг и снять обременение для продажи или рефинансирования недвижимости. Платформа связывает брокеров, которые подают заявки от заёмщиков, с инвесторами, предоставляющими краткосрочное финансирование (7-30 дней).
 
 ### Роли
 
@@ -132,10 +132,12 @@ DATABASE_URL=postgresql://tranzitum:tranzitum@localhost:5432/tranzitum
 JWT_SECRET=your-secret-key
 JWT_EXPIRES_IN=7d
 
-# Mail
-MAIL_PROVIDER=console        # console | unisender
-UNISENDER_API_KEY=           # Для unisender
-MAIL_FROM=noreply@tranzitum.ru
+# Mail (SMTP — например Yandex)
+SMTP_HOST=smtp.yandex.ru
+SMTP_PORT=465
+SMTP_USER=noreply@tranzitum.ru
+SMTP_PASSWORD=<пароль приложения из id.yandex.ru>
+MAIL_FROM=Tranzitum <noreply@tranzitum.ru>
 
 # Files
 UPLOAD_DIR=./uploads
