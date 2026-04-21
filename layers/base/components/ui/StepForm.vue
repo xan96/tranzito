@@ -11,7 +11,7 @@ interface Props {
   disabled?: boolean
   submitText?: string
   nextText?: string
-  /** Offset from viewport bottom for the sticky footer. Default '4rem' = mobile bottom nav height. Pass '0px' for desktop without nav. */
+  /** Bottom padding of the form (space reserved for fixed bottom nav). Default '4rem' = mobile bottom nav height. Pass '0px' for desktop without nav. */
   footerOffset?: string
   /** Size of next/submit button */
   buttonSize?: 'md' | 'lg' | 'xl'
@@ -24,8 +24,8 @@ const props = withDefaults(defineProps<Props>(), {
   buttonSize: 'xl',
 })
 
-const footerStyle = computed(() => ({
-  bottom: `calc(${props.footerOffset} + env(safe-area-inset-bottom))`,
+const formStyle = computed(() => ({
+  paddingBottom: `calc(${props.footerOffset} + env(safe-area-inset-bottom))`,
 }))
 
 const emit = defineEmits<{
@@ -60,7 +60,7 @@ function goPrev() {
 </script>
 
 <template>
-  <div class="t-step-form">
+  <div class="t-step-form" :style="formStyle">
     <!-- Progress bar -->
     <div class="t-step-progress">
       <div class="t-step-progress-bar" :style="{ width: `${progress}%` }" />
@@ -104,8 +104,8 @@ function goPrev() {
       </Transition>
     </div>
 
-    <!-- Bottom button -->
-    <div class="t-step-footer" :style="footerStyle">
+    <!-- Bottom footer (in normal flow, scrolls with the page) -->
+    <div class="t-step-footer">
       <TButton
         :loading="loading"
         :disabled="disabled"
@@ -161,29 +161,11 @@ function goPrev() {
 }
 
 .t-step-content {
-  @apply flex-1 px-4 py-6 pb-40;
+  @apply flex-1 px-4 py-6;
 }
 
 .t-step-footer {
-  @apply fixed left-0 right-0 z-50;
   @apply px-4 py-4 bg-white;
   @apply border-t border-gray-100;
-  /* Position controlled via :style binding from footerOffset prop. */
-}
-
-/* Slide transition */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.25s ease-out;
-}
-
-.slide-enter-from {
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-.slide-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
 }
 </style>

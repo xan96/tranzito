@@ -27,6 +27,8 @@ const emit = defineEmits<{
   'update:modelValue': [files: UploadedFile[]]
 }>()
 
+const photoInput = ref<HTMLInputElement>()
+const cameraInput = ref<HTMLInputElement>()
 const fileInput = ref<HTMLInputElement>()
 const dragOver = ref(false)
 const localError = ref('')
@@ -92,7 +94,15 @@ function removeFile(index: number) {
   emit('update:modelValue', newFiles)
 }
 
-function openPicker() {
+function openPhoto() {
+  photoInput.value?.click()
+}
+
+function openCamera() {
+  cameraInput.value?.click()
+}
+
+function openFiles() {
   fileInput.value?.click()
 }
 </script>
@@ -104,38 +114,81 @@ function openPicker() {
       <span v-if="required" class="text-red-500">*</span>
     </label>
 
-    <!-- Drop zone -->
+    <!-- Drop zone (desktop drag & drop + visual anchor) -->
     <div
       class="t-file-dropzone"
       :class="{ 'is-dragover': dragOver, 'has-error': error || localError }"
       @dragover.prevent="dragOver = true"
       @dragleave="dragOver = false"
       @drop.prevent="handleDrop"
-      @click="openPicker"
+      @click="openFiles"
     >
-      <!--
-        NB: we intentionally do NOT pass `accept` to the native input.
-        On Android Chrome any `accept` that contains image MIME types makes
-        Chrome open gallery/camera intent and hide Downloads/SAF. Dropping
-        `accept` makes the OS open the full SAF picker (Downloads, Drive,
-        Gallery, Camera) — client-side validation in validateFile() filters
-        out wrong types after selection.
-      -->
-      <input
-        ref="fileInput"
-        type="file"
-        :multiple="multiple"
-        class="hidden"
-        @change="handleChange"
-      />
       <UIcon name="i-heroicons-cloud-arrow-up" class="w-8 h-8 text-gray-400" />
       <p class="mt-2 text-sm text-gray-600">
-        Нажмите или перетащите файлы
+        Перетащите или нажмите, чтобы выбрать файл
       </p>
       <p class="text-xs text-gray-400 mt-1">
         {{ accept }} до {{ formatSize(maxSize) }}
       </p>
     </div>
+
+    <!-- Explicit action buttons. Hidden on desktop via CSS media query. -->
+    <div class="t-file-actions">
+      <button
+        type="button"
+        class="t-file-action"
+        @click="openFiles"
+      >
+        <UIcon name="i-heroicons-document" class="w-5 h-5" />
+        <span>Файл</span>
+      </button>
+      <button
+        type="button"
+        class="t-file-action t-file-action--mobile"
+        @click="openPhoto"
+      >
+        <UIcon name="i-heroicons-photo" class="w-5 h-5" />
+        <span>Фото</span>
+      </button>
+      <button
+        type="button"
+        class="t-file-action t-file-action--mobile"
+        @click="openCamera"
+      >
+        <UIcon name="i-heroicons-camera" class="w-5 h-5" />
+        <span>Камера</span>
+      </button>
+    </div>
+
+    <!-- Doc input: application/pdf only → Android opens SAF with Downloads/Drive,
+         no camera/gallery intent. -->
+    <input
+      ref="fileInput"
+      type="file"
+      accept="application/pdf"
+      :multiple="multiple"
+      class="hidden"
+      @change="handleChange"
+    />
+    <!-- Photo input: image/* without `capture` → system Photo Picker
+         (gallery + Downloads-stored images). -->
+    <input
+      ref="photoInput"
+      type="file"
+      accept="image/*"
+      :multiple="multiple"
+      class="hidden"
+      @change="handleChange"
+    />
+    <!-- Camera input: image/* + capture=environment → direct rear camera. -->
+    <input
+      ref="cameraInput"
+      type="file"
+      accept="image/*"
+      capture="environment"
+      class="hidden"
+      @change="handleChange"
+    />
 
     <!-- Error -->
     <Transition name="error-slide">
@@ -193,6 +246,27 @@ function openPicker() {
 .t-file-dropzone.has-error {
   @apply border-transparent;
   background-color: #fee2e2;
+}
+
+.t-file-actions {
+  @apply mt-2 grid grid-cols-3 gap-2;
+}
+
+.t-file-action {
+  @apply flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg;
+  @apply bg-white border border-gray-200 text-sm font-medium text-gray-700;
+  @apply hover:bg-gray-50 hover:border-gray-300 transition-colors;
+}
+
+/* Hide photo button and collapse the grid on non-touch devices (desktops). */
+@media (hover: hover) and (pointer: fine) {
+  .t-file-actions {
+    @apply grid-cols-1;
+  }
+
+  .t-file-action--mobile {
+    display: none;
+  }
 }
 
 .t-file-error {

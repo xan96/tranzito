@@ -152,6 +152,13 @@ function handleBlur() {
 .t-input-range-input {
   @apply flex-1 text-base font-normal text-gray-900 bg-transparent;
   @apply outline-none border-none p-0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.t-input-range-input:focus,
+.t-input-range-input:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .t-input-range-suffix {
