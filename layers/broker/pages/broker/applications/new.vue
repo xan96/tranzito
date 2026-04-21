@@ -439,6 +439,9 @@ async function handleSubmit() {
     // Clear saved state on success
     sessionStorage.removeItem(STORAGE_KEY)
 
+    // Invalidate cached list so new application is visible immediately on /broker.
+    await refreshNuxtData('api:/api/applications')
+
     await router.push('/broker')
   } catch (error) {
     console.error('Failed to create application:', error)

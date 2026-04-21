@@ -31,6 +31,41 @@ const fileInput = ref<HTMLInputElement>()
 const dragOver = ref(false)
 const localError = ref('')
 
+// Map extensions to MIME types so Android opens the Files picker
+// (Downloads/Drive/SD) instead of forcing camera/gallery-only intent.
+const EXT_TO_MIME: Record<string, string> = {
+  '.pdf': 'application/pdf',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.heic': 'image/heic',
+  '.heif': 'image/heif',
+  '.doc': 'application/msword',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.xls': 'application/vnd.ms-excel',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  '.txt': 'text/plain',
+  '.csv': 'text/csv',
+  '.zip': 'application/zip',
+}
+
+const inputAccept = computed(() => {
+  const tokens = props.accept.split(',').map(t => t.trim()).filter(Boolean)
+  const out = new Set<string>()
+  for (const t of tokens) {
+    if (t.startsWith('.')) {
+      const mime = EXT_TO_MIME[t.toLowerCase()]
+      if (mime) out.add(mime)
+      out.add(t.toLowerCase())
+    } else {
+      out.add(t)
+    }
+  }
+  return Array.from(out).join(',')
+})
+
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
@@ -116,7 +151,7 @@ function openPicker() {
       <input
         ref="fileInput"
         type="file"
-        :accept="accept"
+        :accept="inputAccept"
         :multiple="multiple"
         class="hidden"
         @change="handleChange"
