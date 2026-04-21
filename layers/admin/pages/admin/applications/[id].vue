@@ -273,7 +273,7 @@ async function updateApplication() {
 
       <!-- Main + sidebar -->
       <div class="grid lg:grid-cols-3 gap-4 md:gap-6">
-        <div class="lg:col-span-2 space-y-4 md:space-y-6">
+        <div class="lg:col-span-2 space-y-4 md:space-y-6 min-w-0">
           <TDetailSection
             title="Объект недвижимости"
             icon="i-heroicons-building-office"
@@ -493,7 +493,7 @@ async function updateApplication() {
         </div>
 
         <!-- Sidebar -->
-        <aside class="space-y-4 md:space-y-6">
+        <aside class="space-y-4 md:space-y-6 min-w-0">
           <TDetailSection
             title="Управление"
             icon="i-heroicons-cog-6-tooth"
