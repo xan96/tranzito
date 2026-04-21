@@ -27,7 +27,7 @@ const classes = computed(() => {
   const base = [
     'inline-flex items-center justify-center gap-2',
     'font-medium transition-all duration-200 ease-out',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#fab619]',
     'disabled:opacity-50 disabled:cursor-not-allowed',
   ]
 

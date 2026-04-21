@@ -36,7 +36,7 @@ const initials = computed(() => {
         </div>
 
         <div class="flex items-center gap-2">
-          <TNotificationsBell />
+          <AppNotificationsBell />
 
           <UDropdown
             :items="[[

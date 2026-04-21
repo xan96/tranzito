@@ -44,7 +44,7 @@ defineEmits<{
       <span
         v-if="opt.count !== undefined"
         class="text-[11px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-md"
-        :class="modelValue === opt.value ? 'bg-white/20' : 'bg-gray-100'"
+        :class="modelValue === opt.value ? 'bg-gray-900/10' : 'bg-gray-100'"
       >
         {{ opt.count }}
       </span>
@@ -61,7 +61,7 @@ defineEmits<{
 }
 
 .t-pill--active {
-  @apply bg-gray-900 text-white border-gray-900;
+  @apply bg-[#ffdd2d] text-gray-900 border-[#ffdd2d];
 }
 
 .t-pill--inactive {

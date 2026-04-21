@@ -90,9 +90,10 @@ All prefixed with `T`:
 - `TInput` — floating label input
 - `TButton` — yellow primary, variants: secondary, outline, ghost, link
 - `TStepForm` — multi-step form with progress bar
-- `TTabs` — pills, underline, solid variants
 - `TFileUpload` — drag & drop file upload
 - `TStatusBadge` — application status indicator
+- `TMetricCard` / `TStatCard` — dashboard cards with tone system (see `useToneClasses`)
+- `TFilterPills` / `TSelect` / `TDetailSection` / `TInfoSection` / `TInfoModal` / `TInputRange` / `TLogo`
 
 ## Code Conventions
 

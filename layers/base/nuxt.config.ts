@@ -82,5 +82,10 @@ export default defineNuxtConfig({
       prefix: 'T',
       pathPrefix: false,
     },
+    {
+      path: './components/app',
+      prefix: 'App',
+      pathPrefix: false,
+    },
   ],
 })

@@ -8,6 +8,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   icon: '',
+  // Pressed yellow — better contrast on white bg than primary #ffdd2d.
   iconColor: 'text-[#fab619]',
   variant: 'default',
 })

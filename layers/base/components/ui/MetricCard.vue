@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Tone = 'default' | 'amber' | 'green' | 'red' | 'blue'
+import type { Tone } from '../../composables/useToneClasses'
 
 interface Props {
   label: string
@@ -20,6 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
   compact: false,
 })
 
+const { toneValue, toneLabel } = useToneClasses()
 const subtitleToneResolved = computed(() => props.subtitleTone ?? props.tone)
 </script>
 
@@ -33,12 +34,12 @@ const subtitleToneResolved = computed(() => props.subtitleTone ?? props.tone)
       :class="[
         compact ? 't-metric-card__value--compact' : 't-metric-card__value--normal',
         truncate ? 'truncate' : '',
-        `t-tone-value--${tone}`,
+        toneValue(tone),
       ]"
     >
       <slot>{{ value }}</slot>
     </p>
-    <p v-if="subtitle" class="t-metric-card__subtitle" :class="`t-tone-label--${subtitleToneResolved}`">
+    <p v-if="subtitle" class="t-metric-card__subtitle" :class="toneLabel(subtitleToneResolved)">
       {{ subtitle }}
     </p>
   </div>
@@ -68,16 +69,4 @@ const subtitleToneResolved = computed(() => props.subtitleTone ?? props.tone)
 .t-metric-card__subtitle {
   @apply text-xs mt-1;
 }
-
-.t-tone-value--default { @apply text-gray-900; }
-.t-tone-value--amber { @apply text-amber-600; }
-.t-tone-value--green { @apply text-green-600; }
-.t-tone-value--red { @apply text-red-600; }
-.t-tone-value--blue { @apply text-[#428bf9]; }
-
-.t-tone-label--default { @apply text-gray-500; }
-.t-tone-label--amber { @apply text-amber-600; }
-.t-tone-label--green { @apply text-green-600; }
-.t-tone-label--red { @apply text-red-600; }
-.t-tone-label--blue { @apply text-[#428bf9]; }
 </style>

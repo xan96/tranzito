@@ -11,12 +11,22 @@ interface Props {
   disabled?: boolean
   submitText?: string
   nextText?: string
+  /** Offset from viewport bottom for the sticky footer. Default '4rem' = mobile bottom nav height. Pass '0px' for desktop without nav. */
+  footerOffset?: string
+  /** Size of next/submit button */
+  buttonSize?: 'md' | 'lg' | 'xl'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   submitText: 'Отправить заявку',
   nextText: 'Продолжить',
+  footerOffset: '4rem',
+  buttonSize: 'xl',
 })
+
+const footerStyle = computed(() => ({
+  bottom: `calc(${props.footerOffset} + env(safe-area-inset-bottom))`,
+}))
 
 const emit = defineEmits<{
   'update:currentStep': [step: number]
@@ -95,11 +105,11 @@ function goPrev() {
     </div>
 
     <!-- Bottom button -->
-    <div class="t-step-footer">
+    <div class="t-step-footer" :style="footerStyle">
       <TButton
         :loading="loading"
         :disabled="disabled"
-        size="xl"
+        :size="buttonSize"
         block
         @click="goNext"
       >
@@ -158,8 +168,7 @@ function goPrev() {
   @apply fixed left-0 right-0 z-50;
   @apply px-4 py-4 bg-white;
   @apply border-t border-gray-100;
-  /* Position above bottom navigation (h-16 = 4rem) */
-  bottom: calc(4rem + env(safe-area-inset-bottom));
+  /* Position controlled via :style binding from footerOffset prop. */
 }
 
 /* Slide transition */

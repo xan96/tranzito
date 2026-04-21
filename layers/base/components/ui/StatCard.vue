@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Tone = 'default' | 'amber' | 'green' | 'red' | 'blue'
+import type { Tone } from '../../composables/useToneClasses'
 
 interface Props {
   icon?: string
@@ -10,15 +10,17 @@ interface Props {
   compact?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   tone: 'default',
   compact: false,
 })
+
+const { toneValue, toneLabel } = useToneClasses()
 </script>
 
 <template>
   <div class="t-stat-card">
-    <div class="t-stat-card__head" :class="`t-tone-label--${tone}`">
+    <div class="t-stat-card__head" :class="toneLabel(props.tone)">
       <UIcon v-if="icon" :name="icon" class="w-4 h-4" />
       <span>{{ label }}</span>
     </div>
@@ -26,7 +28,7 @@ withDefaults(defineProps<Props>(), {
       class="t-stat-card__value"
       :class="[
         compact ? 't-stat-card__value--compact' : 't-stat-card__value--normal',
-        `t-tone-value--${tone}`,
+        toneValue(props.tone),
       ]"
     >
       <slot>{{ value }}</slot>
@@ -54,16 +56,4 @@ withDefaults(defineProps<Props>(), {
 .t-stat-card__value--compact {
   @apply text-lg md:text-3xl;
 }
-
-.t-tone-label--default { @apply text-gray-500; }
-.t-tone-label--amber { @apply text-amber-600; }
-.t-tone-label--green { @apply text-green-600; }
-.t-tone-label--red { @apply text-red-600; }
-.t-tone-label--blue { @apply text-[#428bf9]; }
-
-.t-tone-value--default { @apply text-gray-900; }
-.t-tone-value--amber { @apply text-amber-600; }
-.t-tone-value--green { @apply text-green-600; }
-.t-tone-value--red { @apply text-red-600; }
-.t-tone-value--blue { @apply text-[#428bf9]; }
 </style>
