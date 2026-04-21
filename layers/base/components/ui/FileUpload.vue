@@ -56,9 +56,11 @@ const inputAccept = computed(() => {
   const out = new Set<string>()
   for (const t of tokens) {
     if (t.startsWith('.')) {
+      // Map extension to MIME — Android/iOS pickers work reliably only with MIME.
+      // Keep extension as fallback only if no MIME mapping exists.
       const mime = EXT_TO_MIME[t.toLowerCase()]
       if (mime) out.add(mime)
-      out.add(t.toLowerCase())
+      else out.add(t.toLowerCase())
     } else {
       out.add(t)
     }
