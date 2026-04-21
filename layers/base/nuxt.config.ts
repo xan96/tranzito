@@ -1,5 +1,11 @@
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', '@nuxt/fonts'],
+
+  fonts: {
+    families: [
+      { name: 'Inter', weights: [400, 500, 600, 700], provider: 'google' },
+    ],
+  },
 
   
   ui: {
