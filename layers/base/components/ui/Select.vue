@@ -185,10 +185,6 @@ function handleClickOutside(event: MouseEvent) {
   @apply text-base text-gray-900;
 }
 
-.t-select-placeholder {
-  @apply text-gray-400;
-}
-
 .t-select-arrow {
   @apply absolute right-4 top-1/2 -translate-y-1/2;
   @apply text-gray-400 transition-transform duration-200;

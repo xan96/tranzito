@@ -14,9 +14,3 @@ export function useApi<T>(url: string | (() => string), options: UseFetchOptions
     $fetch: useNuxtApp().$fetch,
   })
 }
-
-export function $api<T>(url: string, options: Parameters<typeof $fetch>[1] = {}) {
-  return $fetch<T>(url, {
-    ...options,
-  })
-}
