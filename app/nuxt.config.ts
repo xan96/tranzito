@@ -22,7 +22,7 @@ export default defineNuxtConfig({
     '/': { prerender: true },
     '/login': { prerender: true },
     '/register': { prerender: true },
-    '/register/success': { prerender: true },
+    '/registration-success': { prerender: true },
 
     // Private cabinets - SPA mode (no SSR)
     '/broker/**': { ssr: false },

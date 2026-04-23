@@ -172,7 +172,7 @@ async function handleSubmit() {
         password: form.password,
       },
     })
-    router.replace('/register/success')
+    router.replace('/registration-success')
   } catch (e: unknown) {
     const err = e as { data?: { data?: { code?: string }; message?: string }; statusCode?: number }
     if (err.data?.data?.code === 'EMAIL_TAKEN' || err.statusCode === 409) {
