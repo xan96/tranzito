@@ -85,58 +85,40 @@ export default defineEventHandler(async (event) => {
       comment: managerComment,
     })
 
-    // Send email notification to broker (fire-and-forget)
-    void (async () => {
-      try {
-        const [broker] = await db
-          .select({ email: users.email })
-          .from(users)
-          .where(eq(users.id, currentApplication.brokerId))
-          .limit(1)
+    // Notify broker about status change.
+    const [broker] = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, currentApplication.brokerId))
+      .limit(1)
 
-        if (!broker) return
+    if (broker) {
+      const template = renderMailTemplate('application-status-changed', {
+        applicationId: applicationId.slice(0, 8),
+        newStatus: status,
+        comment: managerComment,
+      })
+      useMailService().notify({ to: broker.email, ...template }, 'applications/status-changed')
+    }
 
-        const mailService = useMailService()
-        const template = renderMailTemplate('application-status-changed', {
-          applicationId: applicationId.slice(0, 8),
-          newStatus: status,
-          comment: managerComment,
-        })
-
-        await mailService.send({
-          to: broker.email,
-          ...template,
-        })
-      } catch (error) {
-        console.error('Failed to send email notification:', error)
-      }
-    })()
-
-    // If approved, notify all investors (fire-and-forget)
+    // If approved — notify all investors.
     if (status === 'approved') {
-      void (async () => {
-        try {
-          const investors = await db
-            .select({ email: users.email })
-            .from(users)
-            .where(eq(users.role, 'investor'))
+      const investors = await db
+        .select({ email: users.email })
+        .from(users)
+        .where(eq(users.role, 'investor'))
 
-          const mailService = useMailService()
-          const template = renderMailTemplate('application-published', {
-            applicationId: applicationId.slice(0, 8),
-            amount: currentApplication.requestedAmount,
-            termDays: currentApplication.loanTermDays,
-          })
-
-          await Promise.allSettled(
-            investors.map(investor =>
-              mailService.send({ to: investor.email, ...template })
-            )
-          )
-        } catch (error) {
-          console.error('Failed to send investor notifications:', error)
-        }
-      })()
+      if (investors.length) {
+        const template = renderMailTemplate('application-published', {
+          applicationId: applicationId.slice(0, 8),
+          amount: currentApplication.requestedAmount,
+          termDays: currentApplication.loanTermDays,
+        })
+        useMailService().notify(
+          investors.map(investor => ({ to: investor.email, ...template })),
+          'applications/published',
+        )
+      }
     }
   }
 

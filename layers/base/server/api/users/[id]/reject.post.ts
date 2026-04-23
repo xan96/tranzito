@@ -74,18 +74,11 @@ export default defineEventHandler(async (event) => {
       rejectionReason: users.rejectionReason,
     })
 
-  try {
-    const rendered = renderMailTemplate('user-rejected', {
-      fullName: target.fullName,
-      reason: reason ?? undefined,
-    })
-    await useMailService().send({
-      to: target.email,
-      ...rendered,
-    })
-  } catch (err) {
-    console.error('[users/reject] mail send failed:', err)
-  }
+  const rendered = renderMailTemplate('user-rejected', {
+    fullName: target.fullName,
+    reason: reason ?? undefined,
+  })
+  useMailService().notify({ to: target.email, ...rendered }, 'users/reject')
 
   return { data: updated }
 })

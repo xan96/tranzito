@@ -1,7 +1,8 @@
 import { and, eq } from 'drizzle-orm'
-import { applications, investorInterests, users } from '@tranzitum/db'
+import { applications, investorInterests } from '@tranzitum/db'
 import { requireRole } from '../../../utils/auth'
 import { useMailService, renderMailTemplate } from '../../../utils/mail'
+import { getActiveAdminEmails } from '../../../utils/users'
 
 export default defineEventHandler(async (event) => {
   const user = requireRole(event, ['investor'])
@@ -62,30 +63,18 @@ export default defineEventHandler(async (event) => {
     })
     .returning()
 
-  // Send email notification to all active admins (fire-and-forget)
-  void (async () => {
-    try {
-      const admins = await db
-        .select({ email: users.email })
-        .from(users)
-        .where(and(eq(users.role, 'admin'), eq(users.isActive, true)))
-
-      if (!admins.length) return
-
-      const mailService = useMailService()
-      const template = renderMailTemplate('investor-interest', {
-        investorName: user.fullName,
-        investorEmail: user.email,
-        applicationId: applicationId.slice(0, 8),
-      })
-
-      await Promise.allSettled(
-        admins.map(admin => mailService.send({ to: admin.email, ...template })),
-      )
-    } catch (error) {
-      console.error('Failed to send email notification:', error)
-    }
-  })()
+  const adminEmails = await getActiveAdminEmails()
+  if (adminEmails.length) {
+    const template = renderMailTemplate('investor-interest', {
+      investorName: user.fullName,
+      investorEmail: user.email,
+      applicationId: applicationId.slice(0, 8),
+    })
+    useMailService().notify(
+      adminEmails.map(to => ({ to, ...template })),
+      'applications/interest',
+    )
+  }
 
   return { data: interest, alreadyRequested: false }
 })

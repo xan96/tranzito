@@ -23,6 +23,11 @@ export class SmtpMailService implements MailService {
         user: config.user,
         pass: config.password,
       },
+      // Fail fast on SMTP issues — defaults are 2 min / 10 min and can
+      // freeze HTTP handlers awaiting mail.send().
+      connectionTimeout: 10_000,
+      greetingTimeout: 5_000,
+      socketTimeout: 15_000,
     })
     this.from = config.from
   }
@@ -35,5 +40,22 @@ export class SmtpMailService implements MailService {
       html: message.html,
       text: message.text,
     })
+  }
+
+  notify(message: MailMessage | MailMessage[], context = 'mail'): void {
+    const messages = Array.isArray(message) ? message : [message]
+    if (!messages.length) return
+
+    // Fire-and-forget: HTTP-ответ не ждёт SMTP.
+    void (async () => {
+      const results = await Promise.allSettled(
+        messages.map(m => this.send(m)),
+      )
+      for (const r of results) {
+        if (r.status === 'rejected') {
+          console.error(`[${context}] mail send failed:`, r.reason)
+        }
+      }
+    })()
   }
 }

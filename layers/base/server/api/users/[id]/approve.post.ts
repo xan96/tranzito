@@ -55,21 +55,13 @@ export default defineEventHandler(async (event) => {
       approvedAt: users.approvedAt,
     })
 
-  // Notify the user. Mail failures must not break the approval.
-  try {
-    const config = useRuntimeConfig()
-    const loginUrl = `${config.public.appUrl || ''}/login`
-    const rendered = renderMailTemplate('user-approved', {
-      fullName: target.fullName,
-      loginUrl,
-    })
-    await useMailService().send({
-      to: target.email,
-      ...rendered,
-    })
-  } catch (err) {
-    console.error('[users/approve] mail send failed:', err)
-  }
+  const config = useRuntimeConfig()
+  const loginUrl = `${config.public.appUrl || ''}/login`
+  const rendered = renderMailTemplate('user-approved', {
+    fullName: target.fullName,
+    loginUrl,
+  })
+  useMailService().notify({ to: target.email, ...rendered }, 'users/approve')
 
   return { data: updated }
 })

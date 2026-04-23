@@ -80,8 +80,15 @@ Statuses: `pending` → `approved` → `in_progress` → `completed` | `rejected
 ### Mail
 ```typescript
 // SMTP via nodemailer (SMTP_HOST/PORT/USER/PASSWORD + MAIL_FROM env)
-const mailService = useMailService()
-await mailService.send({ to, subject, html })
+const mail = useMailService()
+
+// Fire-and-forget — используй по умолчанию для любых пользовательских
+// уведомлений, HTTP-ответ не блокируется на SMTP.
+mail.notify({ to, subject, html }, 'context/for-logs')
+mail.notify([{ to: a, ... }, { to: b, ... }], 'mass-notify')
+
+// Блокирующая отправка — только если важен результат (почти никогда).
+await mail.send({ to, subject, html })
 ```
 
 ## Custom Components (T-Bank Style)

@@ -66,27 +66,19 @@ export default defineEventHandler(async (event) => {
       role: users.role,
     })
 
-  // Notify admin. Mail failures must not break the registration.
-  try {
-    const config = useRuntimeConfig()
-    const adminEmail = (config.adminEmail as string | undefined) || ''
-    if (adminEmail) {
-      const adminUrl = `${config.public.appUrl || ''}/admin/users?status=pending`
-      const rendered = renderMailTemplate('user-registration-request', {
-        email: created.email,
-        fullName: created.fullName,
-        role: created.role as SelfRegistrationRole,
-        adminUrl,
-      })
-      await useMailService().send({
-        to: adminEmail,
-        ...rendered,
-      })
-    } else {
-      console.warn('[auth/register] NUXT_ADMIN_EMAIL is not set; skipping admin notification')
-    }
-  } catch (err) {
-    console.error('[auth/register] admin mail failed:', err)
+  const config = useRuntimeConfig()
+  const adminEmail = (config.adminEmail as string | undefined) || ''
+  if (adminEmail) {
+    const adminUrl = `${config.public.appUrl || ''}/admin/users?status=pending`
+    const rendered = renderMailTemplate('user-registration-request', {
+      email: created.email,
+      fullName: created.fullName,
+      role: created.role as SelfRegistrationRole,
+      adminUrl,
+    })
+    useMailService().notify({ to: adminEmail, ...rendered }, 'auth/register')
+  } else {
+    console.warn('[auth/register] NUXT_ADMIN_EMAIL is not set; skipping admin notification')
   }
 
   return { ok: true }

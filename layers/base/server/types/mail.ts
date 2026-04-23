@@ -6,7 +6,20 @@ export interface MailMessage {
 }
 
 export interface MailService {
+  /**
+   * Блокирующая отправка. Бросает исключение при неудаче.
+   * Используется только если вызывающему важен результат (редко).
+   */
   send(message: MailMessage): Promise<void>
+
+  /**
+   * Fire-and-forget отправка одного или нескольких писем.
+   * Не блокирует HTTP-ответ, ошибки логируются в консоль.
+   * Используется для всех пользовательских уведомлений.
+   *
+   * @param context короткое имя места вызова для лога, например 'users/approve'
+   */
+  notify(message: MailMessage | MailMessage[], context?: string): void
 }
 
 export type MailTemplate =
