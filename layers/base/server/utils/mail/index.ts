@@ -1,23 +1,37 @@
 import type { MailService, MailTemplate, MailTemplateData } from '~/server/types/mail'
 import { SmtpMailService } from './smtp'
+import { UnisenderGoMailService } from './unisender-go'
 import { USER_ROLE_LABELS } from '../../../utils/constants'
 
 let mailService: MailService | null = null
 
+/**
+ * Выбор транспорта:
+ *  - `UNISENDER_API_KEY` задан → HTTP API Unisender Go (обходит блокировку
+ *    исходящих SMTP-портов на VPS-провайдерах).
+ *  - Иначе → классический SMTP через nodemailer.
+ */
 export function useMailService(): MailService {
   if (!mailService) {
     const config = useRuntimeConfig()
-    const host = config.smtpHost as string
-    const user = config.smtpUser as string
-    const password = config.smtpPassword as string
-    const port = Number(config.smtpPort) || 587
-    const from = (config.mailFrom as string) || user
+    const apiKey = (config.unisenderApiKey as string | undefined) || ''
+    const from = (config.mailFrom as string) || (config.smtpUser as string) || ''
 
-    if (!host || !user || !password) {
-      throw new Error('SMTP_HOST, SMTP_USER and SMTP_PASSWORD are required')
+    if (apiKey) {
+      if (!from) {
+        throw new Error('MAIL_FROM is required when UNISENDER_API_KEY is set')
+      }
+      mailService = new UnisenderGoMailService({ apiKey, from })
+    } else {
+      const host = config.smtpHost as string
+      const user = config.smtpUser as string
+      const password = config.smtpPassword as string
+      const port = Number(config.smtpPort) || 587
+      if (!host || !user || !password) {
+        throw new Error('Either UNISENDER_API_KEY, or SMTP_HOST + SMTP_USER + SMTP_PASSWORD are required')
+      }
+      mailService = new SmtpMailService({ host, port, user, password, from: from || user })
     }
-
-    mailService = new SmtpMailService({ host, port, user, password, from })
   }
 
   return mailService

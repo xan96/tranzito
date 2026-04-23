@@ -132,10 +132,7 @@ GET  /api/documents/:id       # Download file
 ```env
 DATABASE_URL=postgresql://tranzitum:tranzitum@localhost:5432/tranzitum
 JWT_SECRET=your-secret
-SMTP_HOST=smtp.go2.unisender.ru
-SMTP_PORT=587
-SMTP_USER=<логин Unisender Go>
-SMTP_PASSWORD=...
+UNISENDER_API_KEY=<ключ из https://go1.unisender.ru/ru/user/info/api>
 MAIL_FROM=Tranzitum <noreply@tranzitum.ru>
 UPLOAD_DIR=./uploads
 ADMIN_EMAIL=admin@tranzitum.ru        # создаётся первым seed

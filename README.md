@@ -132,11 +132,9 @@ DATABASE_URL=postgresql://tranzitum:tranzitum@localhost:5432/tranzitum
 JWT_SECRET=your-secret-key
 JWT_EXPIRES_IN=7d
 
-# Mail (SMTP — Unisender Go)
-SMTP_HOST=smtp.go2.unisender.ru
-SMTP_PORT=587
-SMTP_USER=<логин из кабинета go2.unisender.ru>
-SMTP_PASSWORD=<пароль из кабинета go2.unisender.ru>
+# Mail (Unisender Go — HTTP API)
+# Ключ: https://go1.unisender.ru/ru/user/info/api
+UNISENDER_API_KEY=<api-key>
 MAIL_FROM=Tranzitum <noreply@tranzitum.ru>
 
 # Files
