@@ -60,10 +60,12 @@ export interface MailTemplateData {
   }
   'user-approved': {
     fullName: string
+    role: 'broker' | 'investor' | 'admin'
     loginUrl: string
   }
   'user-rejected': {
     fullName: string
+    role: 'broker' | 'investor' | 'admin'
     reason?: string
   }
 }

@@ -34,6 +34,7 @@ export default defineEventHandler(async (event) => {
       id: users.id,
       email: users.email,
       fullName: users.fullName,
+      role: users.role,
       approvalStatus: users.approvalStatus,
     })
     .from(users)
@@ -76,6 +77,7 @@ export default defineEventHandler(async (event) => {
 
   const rendered = renderMailTemplate('user-rejected', {
     fullName: target.fullName,
+    role: target.role,
     reason: reason ?? undefined,
   })
   useMailService().notify({ to: target.email, ...rendered }, 'users/reject')

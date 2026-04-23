@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
       id: users.id,
       email: users.email,
       fullName: users.fullName,
+      role: users.role,
       approvalStatus: users.approvalStatus,
     })
     .from(users)
@@ -59,6 +60,7 @@ export default defineEventHandler(async (event) => {
   const loginUrl = `${config.public.appUrl || ''}/login`
   const rendered = renderMailTemplate('user-approved', {
     fullName: target.fullName,
+    role: target.role,
     loginUrl,
   })
   useMailService().notify({ to: target.email, ...rendered }, 'users/approve')
