@@ -72,12 +72,7 @@ export default defineNuxtConfig({
     jwtSecret: process.env.JWT_SECRET || '',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
     databaseUrl: process.env.DATABASE_URL || '',
-    smtpHost: process.env.SMTP_HOST || '',
-    smtpPort: Number(process.env.SMTP_PORT) || 587,
-    smtpUser: process.env.SMTP_USER || '',
-    smtpPassword: process.env.SMTP_PASSWORD || '',
-    // Unisender Go HTTP API — используется вместо SMTP, когда провайдер
-    // блокирует исходящие SMTP-порты (стандартная ситуация на VPS).
+    // Unisender Go HTTP API — единственный транспорт почты.
     unisenderApiKey: process.env.UNISENDER_API_KEY || '',
     mailFrom: process.env.MAIL_FROM || '',
     adminEmail: process.env.ADMIN_EMAIL || '',

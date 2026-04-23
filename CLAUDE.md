@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling:** Tailwind CSS
 - **Database:** PostgreSQL + Drizzle ORM (postgres.js driver)
 - **Auth:** JWT
-- **Email:** Abstract mail service (SMTP via nodemailer)
+- **Email:** Unisender Go HTTP API (`UnisenderGoMailService`)
 - **Package Manager:** pnpm (monorepo)
 
 ## Commands
@@ -79,11 +79,11 @@ Statuses: `pending` → `approved` → `in_progress` → `completed` | `rejected
 
 ### Mail
 ```typescript
-// SMTP via nodemailer (SMTP_HOST/PORT/USER/PASSWORD + MAIL_FROM env)
+// Unisender Go HTTP API (UNISENDER_API_KEY + MAIL_FROM env).
 const mail = useMailService()
 
 // Fire-and-forget — используй по умолчанию для любых пользовательских
-// уведомлений, HTTP-ответ не блокируется на SMTP.
+// уведомлений, HTTP-ответ не блокируется на почте.
 mail.notify({ to, subject, html }, 'context/for-logs')
 mail.notify([{ to: a, ... }, { to: b, ... }], 'mass-notify')
 
