@@ -10,7 +10,7 @@ export function useMailService(): MailService {
     const host = config.smtpHost as string
     const user = config.smtpUser as string
     const password = config.smtpPassword as string
-    const port = Number(config.smtpPort) || 465
+    const port = Number(config.smtpPort) || 587
     const from = (config.mailFrom as string) || user
 
     if (!host || !user || !password) {

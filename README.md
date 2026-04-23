@@ -132,11 +132,11 @@ DATABASE_URL=postgresql://tranzitum:tranzitum@localhost:5432/tranzitum
 JWT_SECRET=your-secret-key
 JWT_EXPIRES_IN=7d
 
-# Mail (SMTP — например Yandex)
-SMTP_HOST=smtp.yandex.ru
-SMTP_PORT=465
-SMTP_USER=noreply@tranzitum.ru
-SMTP_PASSWORD=<пароль приложения из id.yandex.ru>
+# Mail (SMTP — Unisender Go)
+SMTP_HOST=smtp.go2.unisender.ru
+SMTP_PORT=587
+SMTP_USER=<логин из кабинета go2.unisender.ru>
+SMTP_PASSWORD=<пароль из кабинета go2.unisender.ru>
 MAIL_FROM=Tranzitum <noreply@tranzitum.ru>
 
 # Files

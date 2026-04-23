@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Tranzito** — платформа транзитного финансирования для погашения ипотечного долга. Брокеры создают заявки, инвесторы финансируют, администраторы управляют процессом.
+**Tranzitum** — платформа транзитного финансирования для погашения ипотечного долга. Брокеры создают заявки, инвесторы финансируют, администраторы управляют процессом.
 
 ## Tech Stack
 
@@ -125,9 +125,9 @@ GET  /api/documents/:id       # Download file
 ```env
 DATABASE_URL=postgresql://tranzitum:tranzitum@localhost:5432/tranzitum
 JWT_SECRET=your-secret
-SMTP_HOST=smtp.yandex.ru
-SMTP_PORT=465
-SMTP_USER=noreply@tranzitum.ru
+SMTP_HOST=smtp.go2.unisender.ru
+SMTP_PORT=587
+SMTP_USER=<логин Unisender Go>
 SMTP_PASSWORD=...
 MAIL_FROM=Tranzitum <noreply@tranzitum.ru>
 UPLOAD_DIR=./uploads

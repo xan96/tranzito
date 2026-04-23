@@ -83,10 +83,11 @@ nano .env
 # - ACME_EMAIL:        твой email для Let's Encrypt
 # - POSTGRES_PASSWORD: openssl rand -base64 24
 # - JWT_SECRET:        openssl rand -hex 32
-# - SMTP_HOST:         smtp.yandex.ru (или другой SMTP)
-# - SMTP_USER:         noreply@tranzitum.ru
-# - SMTP_PASSWORD:     пароль приложения (id.yandex.ru → Пароли приложений)
-# - MAIL_FROM:         Tranzitum <noreply@tranzitum.ru>
+# - SMTP_HOST:         smtp.go2.unisender.ru
+# - SMTP_PORT:         587 (TLS)
+# - SMTP_USER:         логин из кабинета go2.unisender.ru
+# - SMTP_PASSWORD:     пароль из кабинета go2.unisender.ru (Настройки → SMTP)
+# - MAIL_FROM:         Tranzitum <noreply@tranzitum.ru>   # на верифицированном домене
 # - ADMIN_EMAIL:       свой email
 # - ADMIN_PASSWORD:    придумай минимум 8 символов (можно удалить после seed)
 
